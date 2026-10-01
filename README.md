@@ -19,6 +19,8 @@ If the field isn't on screen, the text is copied to the clipboard instead. The f
 
 All rules live in one file, [`authz/authz.js`](authz/authz.js). The UI, service layer and dev server all call it.
 
+**Initial admins:** supriya.m@commerceiq.ai and diwagar.j@commerceiq.ai. This is configured on the backend (see `docs/backend-api.md`), not in the extension. The extension has no admin list on purpose.
+
 ### ⚠️ Security model: read this
 A client-only extension **cannot** protect an admin role. Anything stored in it (an admin list, a role flag, `chrome.storage.local`) can be read and edited by whoever runs it. So:
 - **The backend decides who is an admin.** The extension asks `GET /feedback/me` and reads the role from the response. A role is never read from local storage, and anything unclear (offline, bad response) means *normal user*.
@@ -62,11 +64,11 @@ git clone <repo-url> && cd anomaly-feedback-extension
 npm install
 npm test                      # 60+ tests: authz, service, storage, server, DOM, integration
 npm run build:data -- path/to/data.csv
-npm run dev:server            # reference backend on :8787 (DEV_ADMINS=you@example.com)
+npm run dev:server            # reference backend on :8787 (admins: the two initial admins; override with DEV_ADMINS)
 ```
 To try admin features locally: start the dev server, then in the extension's service worker console (`chrome://extensions` → *service worker*) run:
 ```js
-chrome.storage.local.set({ 'afx.devApi': true, 'afx.devUser': 'you@example.com' })
+chrome.storage.local.set({ 'afx.devApi': true, 'afx.devUser': 'supriya.m@commerceiq.ai' })
 ```
 and grant the optional `http://localhost:8787/*` permission. This mode is for development only. `X-Dev-User` is not real authentication.
 

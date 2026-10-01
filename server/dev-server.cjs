@@ -3,13 +3,17 @@
  * enforcement must live in production. Identity here is a dev-only X-Dev-User header; the real
  * backend must derive identity from the Anomaly Hub session instead. Never deploy this file.
  *
- *   DEV_ADMINS=you@example.com node server/dev-server.cjs      (listens on :8787)
+ *   node server/dev-server.cjs                                  (admins: INITIAL_ADMINS below)
+ *   DEV_ADMINS=a@x.com,b@x.com node server/dev-server.cjs       (override)
  */
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const authz = require('../authz/authz.js');
 const { ACTIONS: A } = authz;
+
+// Initial admins. In production these two accounts must be seeded as admins in the Hub's user store.
+const INITIAL_ADMINS = ['supriya.m@commerceiq.ai', 'diwagar.j@commerceiq.ai'];
 
 function createServer(opts) {
   opts = opts || {};
@@ -86,8 +90,9 @@ function createServer(opts) {
   });
 }
 
-module.exports = { createServer };
+module.exports = { createServer, INITIAL_ADMINS };
 if (require.main === module) {
-  const admins = (process.env.DEV_ADMINS || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const fromEnv = (process.env.DEV_ADMINS || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const admins = fromEnv.length ? fromEnv : INITIAL_ADMINS;
   createServer({ admins }).listen(8787, '127.0.0.1', () => console.log('Dev feedback API on http://127.0.0.1:8787 admins=' + (admins.join(',') || '(none)')));
 }

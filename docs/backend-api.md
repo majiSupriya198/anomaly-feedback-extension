@@ -46,6 +46,8 @@ There is **no hard delete**. Authorize each field before changing anything. Retu
 `id` is assigned by the server and never changes, even when `text` is edited.
 
 ## Roles in the Anomaly Hub
+Initial admins (exactly two): **supriya.m@commerceiq.ai** and **diwagar.j@commerceiq.ai**. Everyone else is a normal user. Seed these two when you add the role, and match emails case-insensitively.
+
 The Hub already has a `users` table. The simplest change is an `is_feedback_admin` boolean (or a `role` column) on it, read when answering `/feedback/me` and when authorizing writes. Reuse the Hub's existing session auth and CORS settings. Allow credentialed requests from the extension's origin, or serve the API on the Hub origin as above.
 
 ## Local development

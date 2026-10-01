@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { req } from './helpers.js';
-const { createServer } = req('../server/dev-server.cjs');
+const { createServer, INITIAL_ADMINS } = req('../server/dev-server.cjs');
 
 let srv, base;
 beforeAll(async () => {
@@ -12,6 +12,21 @@ afterAll(() => new Promise((r) => srv.close(r)));
 
 const call = (user, method, path, body) => fetch(base + path, { method, headers: { 'Content-Type': 'application/json', ...(user ? { 'X-Dev-User': user } : {}) }, body: body ? JSON.stringify(body) : undefined });
 const U = 'user@x.com', AD = 'admin@x.com';
+
+describe('initial admins', () => {
+  it('are exactly the two named accounts (case-insensitive); everyone else is a user', async () => {
+    expect(INITIAL_ADMINS).toEqual(['supriya.m@commerceiq.ai', 'diwagar.j@commerceiq.ai']);
+    const s = createServer({ admins: INITIAL_ADMINS });
+    await new Promise((r) => s.listen(0, '127.0.0.1', r));
+    const b = 'http://127.0.0.1:' + s.address().port;
+    const role = async (u) => (await (await fetch(b + '/feedback/me', { headers: { 'X-Dev-User': u } })).json()).role;
+    expect(await role('supriya.m@commerceiq.ai')).toBe('admin');
+    expect(await role('Diwagar.J@CommerceIQ.ai')).toBe('admin');
+    expect(await role('someone.else@commerceiq.ai')).toBe('user');
+    expect(await role('supriya.m@commerceiq.ai.evil.com')).toBe('user');
+    await new Promise((r) => s.close(r));
+  });
+});
 
 describe('server-side enforcement (the real security boundary)', () => {
   it('rejects unauthenticated requests', async () => {
