@@ -26,4 +26,14 @@ describe('authorization policy', () => {
     expect(Object.isFrozen(authz.POLICY.user)).toBe(true);
     expect(() => { 'use strict'; authz.POLICY.user.push('create'); }).toThrow();
   });
+
+  it('Chrome-account allowlist: exactly the two admins, case-insensitive, exact match only', () => {
+    expect(authz.ADMIN_EMAILS).toEqual(['supriya.m@commerceiq.ai', 'diwagar.j@commerceiq.ai']);
+    expect(authz.roleForEmail('supriya.m@commerceiq.ai')).toBe('admin');
+    expect(authz.roleForEmail('  Diwagar.J@CommerceIQ.ai ')).toBe('admin');
+    for (const e of ['', null, undefined, 'x@commerceiq.ai', 'supriya.m@commerceiq.ai.evil.com', 'evil+supriya.m@commerceiq.ai', 'supriya.m@gmail.com', 42, { a: 1 }]) {
+      expect(authz.roleForEmail(e)).toBe('user');
+    }
+    expect(() => authz.ADMIN_EMAILS.push('a@b.c')).toThrow();
+  });
 });

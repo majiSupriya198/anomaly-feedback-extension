@@ -5,7 +5,8 @@
   "scripts": {
     "test": "vitest run",
     "build:data": "node scripts/csv-to-json.mjs",
-    "dev:server": "node server/dev-server.cjs"
+    "dev:server": "node server/dev-server.cjs",
+    "publish:list": "node scripts/publish-list.mjs"
   },
   "devDependencies": {
     "jsdom": "^26.0.0",

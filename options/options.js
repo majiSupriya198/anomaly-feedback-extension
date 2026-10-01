@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const { authz, store, apiClient, feedbackService } = AFX;
-  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz });
+  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz, localIdentity: apiClient.messageWhoAmI });
   document.querySelectorAll('input[name=mode]').forEach((r) => r.addEventListener('change', () => service.saveSettings({ insertMode: r.value })));
   document.getElementById('confirm').addEventListener('change', (e) => service.saveSettings({ confirmReplace: e.target.checked }));
   service.getSettings().then((s) => {

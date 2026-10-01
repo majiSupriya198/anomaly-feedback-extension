@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const { authz, store, apiClient, feedbackService } = AFX;
-  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz });
+  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz, localIdentity: apiClient.messageWhoAmI });
   const q = document.getElementById('q'), list = document.getElementById('list'), msg = document.getElementById('msg');
   let all = [];
   function render() {

@@ -32,7 +32,7 @@ beforeEach(async () => {
   Object.defineProperty(navigator, 'clipboard', { value: { writeText: clipboard }, configurable: true });
   be = fakeBackend('user');
   globalThis.chrome = { storage: { onChanged: { addListener() {} } },
-    runtime: { id: 'test-ext', sendMessage(msg, cb) { be.transport({ method: msg.method, path: msg.path, body: msg.body }).then(cb, () => cb(undefined)); } } };
+    runtime: { id: 'test-ext', sendMessage(msg, cb) { if (msg.type === 'afx.whoami') return cb({ email: 'someone@commerceiq.ai' }); be.transport({ method: msg.method, path: msg.path, body: msg.body }).then(cb, () => cb(undefined)); } } };
   window.confirm = vi.fn(() => true);
 });
 
@@ -188,10 +188,10 @@ describe('static safety: nothing in the page-facing code can submit', () => {
       expect(src, f).not.toMatch(/store\.(setAll|upsert)\b/);
     }
   });
-  it('manifest declares only the storage permission and the Hub origin', () => {
+  it('manifest declares only storage, identity.email and the Hub origin', () => {
     const m = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
     expect(m.manifest_version).toBe(3);
-    expect(m.permissions).toEqual(['storage']);
+    expect(m.permissions).toEqual(['storage', 'identity', 'identity.email']);
     expect(m.optional_host_permissions).toEqual(['http://localhost:8787/*']);
     expect(m.content_scripts[0].matches).toEqual(['https://anomaly-hub.ef.uk.com/*']);
   });

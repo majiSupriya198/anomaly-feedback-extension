@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const { authz, store, apiClient, feedbackService } = AFX;
-  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz });
+  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz, localIdentity: apiClient.messageWhoAmI });
   const $ = (id) => document.getElementById(id);
   let all = [];
   let editing = null; // { id|null }
@@ -75,12 +75,18 @@
     const id = await service.getIdentity(true);
     role = id.role;
     if (!authz.can(role, authz.ACTIONS.VIEW_INACTIVE)) {
-      $('who').textContent = id.online ? 'Signed in' + (id.email ? ' as ' + id.email : '') + '.' : 'Feedback service unreachable.';
+      $('who').textContent = id.email ? 'Chrome account: ' + id.email : 'No Chrome account detected.';
       $('gate').hidden = false;
-      $('gate').textContent = id.online ? 'Admin access is required to manage feedback. Ask an Anomaly Hub admin to grant it.' : 'Could not verify admin access because the feedback service is unreachable. Try again later.';
+      $('gate').textContent = id.email
+        ? 'Admin access is required to manage feedback. Your Chrome account (' + id.email + ') is not an admin.'
+        : 'Admin access is required. Sign in to Chrome with your CommerceIQ account to be recognised.';
       return; // admin controls are never rendered or wired up
     }
-    $('who').textContent = 'Signed in' + (id.email ? ' as ' + id.email : '') + ' (admin).';
+    $('who').textContent = 'Signed in' + (id.email ? ' as ' + id.email : '') + ' (admin' + (id.mode === 'local' ? ', local mode' : '') + ').';
+    if (id.mode === 'local') {
+      $('notice').hidden = false;
+      $('notice').textContent = 'No feedback server is connected. Your changes are saved in THIS browser only and are not shared. To share them: click Export JSON, then run "npm run publish:list -- <file>" in the repo and push, so the team gets them with the next extension update.';
+    }
     $('app').hidden = false;
     $('q').addEventListener('input', render);
     $('cat').addEventListener('change', render);

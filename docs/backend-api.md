@@ -1,4 +1,6 @@
-# Feedback backend API (required for admin access)
+# Feedback backend API (optional: enables shared, server-enforced editing)
+
+Without it the extension runs in **local mode**: admins are recognised by their Chrome account email and edit only their own browser (see README). Add this API when you want one shared list with real enforcement. The extension then uses it automatically, and it takes priority over the email check.
 
 A Chrome extension cannot keep an admin role secret. Anything stored in the extension (an admin list,
 a role flag, `chrome.storage.local`) can be read and edited by the person using it. So **the backend is the
@@ -46,7 +48,7 @@ There is **no hard delete**. Authorize each field before changing anything. Retu
 `id` is assigned by the server and never changes, even when `text` is edited.
 
 ## Roles in the Anomaly Hub
-Initial admins (exactly two): **supriya.m@commerceiq.ai** and **diwagar.j@commerceiq.ai**. Everyone else is a normal user. Seed these two when you add the role, and match emails case-insensitively.
+Initial admins (exactly two, same as `ADMIN_EMAILS` in `authz/authz.js`): **supriya.m@commerceiq.ai** and **diwagar.j@commerceiq.ai**. Everyone else is a normal user. Seed these two when you add the role, and match emails case-insensitively.
 
 The Hub already has a `users` table. The simplest change is an `is_feedback_admin` boolean (or a `role` column) on it, read when answering `/feedback/me` and when authorizing writes. Reuse the Hub's existing session auth and CORS settings. Allow credentialed requests from the extension's origin, or serve the API on the Hub origin as above.
 

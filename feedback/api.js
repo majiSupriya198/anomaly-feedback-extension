@@ -39,7 +39,16 @@
     });
   }
 
-  const out = { createApi, messageTransport };
+  /** Asks the service worker for the Chrome profile email (content scripts cannot use chrome.identity). */
+  function messageWhoAmI() {
+    return new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: 'afx.whoami' }, (res) => resolve(chrome.runtime.lastError || !res ? '' : (res.email || '')));
+      } catch (e) { resolve(''); }
+    });
+  }
+
+  const out = { createApi, messageTransport, messageWhoAmI };
   root.AFX = root.AFX || {};
   root.AFX.apiClient = out;
   if (typeof module !== 'undefined' && module.exports) module.exports = out;

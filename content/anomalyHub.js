@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const { dom, createPanel, authz, store, apiClient, feedbackService } = globalThis.AFX;
-  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz });
+  const service = feedbackService.createService({ api: apiClient.createApi(apiClient.messageTransport), store, authz, localIdentity: apiClient.messageWhoAmI });
   const DEBOUNCE_MS = 250;
 
   // Idempotent across re-injection and extension reloads. The generation counter lives in the DOM,

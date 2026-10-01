@@ -42,12 +42,20 @@ const service = AFX.feedbackService.createService({
   store: AFX.store, authz: AFX.authz,
 });
 
+function profileEmail() {
+  return new Promise((resolve) => {
+    try { chrome.identity.getProfileUserInfo({ accountStatus: 'ANY' }, (info) => resolve((info && info.email) || '')); }
+    catch (e) { resolve(''); }
+  });
+}
+
 async function warmUp() { try { await AFX.store.getAll(); await service.sync(); } catch (e) { console.warn('[afx] warm-up failed', e); } }
 chrome.runtime.onInstalled.addListener(warmUp);
 chrome.runtime.onStartup.addListener(warmUp);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !msg) return false;
+  if (msg.type === 'afx.whoami') { profileEmail().then((email) => sendResponse({ email })); return true; }
   if (msg.type === 'afx.api') { callBackend(msg).then(sendResponse); return true; }
   if (msg.type === 'afx.openAdmin') { chrome.tabs.create({ url: chrome.runtime.getURL('admin/admin.html') }); return false; }
   if (msg.type === 'afx.openOptions') { chrome.runtime.openOptionsPage(); return false; }

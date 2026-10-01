@@ -2,9 +2,11 @@
   "manifest_version": 3,
   "name": "Anomaly Hub Feedback Helper",
   "version": "1.0.0",
-  "description": "Search and insert approved feedback into Anomaly Hub. Admins manage the list. Never submits anything.",
+  "description": "Search and insert approved feedback into Anomaly Hub. Admins (by Chrome account) manage the list. Never submits anything.",
   "permissions": [
-    "storage"
+    "storage",
+    "identity",
+    "identity.email"
   ],
   "host_permissions": [
     "https://anomaly-hub.ef.uk.com/*"
@@ -32,7 +34,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "data/feedback.json"
+        "data/feedback.json",
+        "data/feedback.meta.json"
       ],
       "matches": [
         "https://anomaly-hub.ef.uk.com/*"

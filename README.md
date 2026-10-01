@@ -19,18 +19,33 @@ If the field isn't on screen, the text is copied to the clipboard instead. The f
 
 All rules live in one file, [`authz/authz.js`](authz/authz.js). The UI, service layer and dev server all call it.
 
-**Initial admins:** supriya.m@commerceiq.ai and diwagar.j@commerceiq.ai. This is configured on the backend (see `docs/backend-api.md`), not in the extension. The extension has no admin list on purpose.
+**Who is an admin:** the extension reads the account Chrome is signed into and grants admin only if its email is **supriya.m@commerceiq.ai** or **diwagar.j@commerceiq.ai** (matched case-insensitively, exact match). The list lives in one place, `ADMIN_EMAILS` in [`authz/authz.js`](authz/authz.js). If no Chrome account is signed in, or the email isn't on the list, you're a normal user.
+
+> Chrome will show "Read your email address" when you install. That permission (`identity.email`) is what lets the extension see which account is signed in.
+
+### Two modes
+| | Backend mode (when a feedback server exists) | Local mode (today) |
+|---|---|---|
+| Who is admin | The server decides (`GET /feedback/me`) | The Chrome account email allowlist above |
+| Where admin edits go | The server, shared by everyone | **This browser only** |
+| Enforcement | Server (real) | Extension (UI and local copy only) |
+
+A reachable backend always wins over the email check. If it says you're a normal user, you are.
 
 ### ⚠️ Security model: read this
-A client-only extension **cannot** protect an admin role. Anything stored in it (an admin list, a role flag, `chrome.storage.local`) can be read and edited by whoever runs it. So:
-- **The backend decides who is an admin.** The extension asks `GET /feedback/me` and reads the role from the response. A role is never read from local storage, and anything unclear (offline, bad response) means *normal user*.
-- The extension's checks (hiding controls, refusing writes) are a safety net. **The server must enforce the same policy on every write.** See [`docs/backend-api.md`](docs/backend-api.md) for the contract and the simplest way to add it to the Anomaly Hub.
-- Until the backend endpoints exist, the extension works **read-only for everyone** from the bundled list, and nobody can edit it.
-- No API keys, tokens or credentials are in this repo or the extension. It reuses the user's existing Hub login session.
+- **Local mode is not a security boundary.** The check runs inside the extension, so someone who edits their own copy of the extension could make themselves a local "admin". The email itself comes from Chrome's signed-in Google account and can't be typed in. What a local admin can change is **only their own browser's list**. Nobody else is affected, because the shared list ships through this Git repo (below), where changes need GitHub write access.
+- **Normal users can't modify the list** through the extension: no controls are shown, and the service layer refuses writes. Unknown or unreadable identity means *normal user*.
+- For shared, server-enforced edits, add the endpoints in [`docs/backend-api.md`](docs/backend-api.md). The extension switches to backend mode automatically.
+- No API keys, tokens or credentials are in this repo or the extension.
+
+### Sharing admin edits with the team (local mode)
+1. Admin page → make your changes → **Export JSON**.
+2. In the repo: `npm run publish:list -- path/to/feedback-export.json` (validates, rewrites `data/feedback.json`, bumps `data/feedback.meta.json`).
+3. Review the diff, commit and push. Teammates `git pull`, then reload the extension. A newer bundle version refreshes their list automatically, unless they have local admin edits, which are never overwritten.
 
 ## How feedback is stored
-- **Source of truth:** the backend (once available).
-- **Local cache:** `chrome.storage.local` key `afx.feedback`, a read-only copy used for fast, offline search. It is refreshed from the backend on load and replaced as a whole.
+- **Source of truth:** the backend when one exists. Otherwise the list bundled in this repo (`data/feedback.json`, versioned by `data/feedback.meta.json`).
+- **Local cache:** `chrome.storage.local` key `afx.feedback`, used for fast, offline search. Refreshed from the backend on load, or from a newer bundle after an update. Local admin edits set `afx.localEdits` and are backed up (`afx.localBackup`) before any overwrite.
 - **First run:** the cache is seeded from [`data/feedback.json`](data/feedback.json), built from the team's CSV (337 rows → 103 unique texts, verbatim).
 - **Personal data only:** your usage counts (for ranking) and insert preferences. These never change the shared list.
 
@@ -43,10 +58,10 @@ A client-only extension **cannot** protect an admin role. Anything stored in it 
 - Upgrading from v1 migrates your local list (`feedback-001` → `fb-001`) and keeps a backup in `afx.legacyBackup`.
 
 ## Admin functionality
-Admins see **Manage feedback…** in the panel, which opens the admin page (also under the extension's Options). It lets you search and filter, add, edit, enable or disable, delete (soft) and restore, show inactive and deleted items, refresh from the server, and export JSON. A normal user who opens that page sees only an "admin access required" message.
+Admins (the two accounts above) see **Manage feedback…** in the panel, which opens the admin page (also under the extension's Options). It lets you search and filter, add, edit, enable or disable, delete (soft) and restore, show inactive and deleted items, refresh from the server, and export JSON. A normal user who opens that page sees only an "admin access required" message.
 
 ### Add or update feedback
-- **Normal flow:** admin page → *Add feedback* or *Edit*. Changes go to the backend, and everyone gets them on their next load.
+- **Normal flow:** admin page → *Add feedback* or *Edit*. With a backend, everyone gets the change on their next load. In local mode, follow *Sharing admin edits* above.
 - **Bulk update from a new CSV:** `node scripts/csv-to-json.mjs path/to.csv` rewrites `data/feedback.json` (exact duplicates only, wording unchanged). Then import it server-side as the initial data. The bundle is only the offline fallback.
 - Review the current list in [`docs/feedback-review.md`](docs/feedback-review.md).
 
@@ -63,7 +78,8 @@ git clone <repo-url> && cd anomaly-feedback-extension
 ```bash
 npm install
 npm test                      # 60+ tests: authz, service, storage, server, DOM, integration
-npm run build:data -- path/to/data.csv
+npm run build:data -- path/to/data.csv   # CSV -> data/feedback.json
+npm run publish:list -- export.json      # admin export -> shipped list (bumps version)
 npm run dev:server            # reference backend on :8787 (admins: the two initial admins; override with DEV_ADMINS)
 ```
 To try admin features locally: start the dev server, then in the extension's service worker console (`chrome://extensions` → *service worker*) run:
@@ -85,6 +101,7 @@ server/dev-server.cjs     reference API for local dev and tests      docs/  API 
 ```
 
 ## Limits
-- Admin enforcement needs the backend (see above).
+- Server-enforced admin access needs the backend (see above). Local mode only gates the UI and your own copy.
+- Admin detection needs Chrome signed in to a Google account (any sign-in state that exposes the email).
 - The extension only runs on `anomaly-hub.ef.uk.com`. If the host changes, update `manifest.json`.
 - The live Feedback field is detected by label. If the Hub's markup changes, adjust `content/domAdapter.js`.

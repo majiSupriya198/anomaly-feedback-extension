@@ -7,11 +7,11 @@ const { createApi } = req('../feedback/api.js');
 const { createService } = req('../feedback/service.js');
 
 let mem, be, svc;
-function setup(role) {
+function setup(role, email) {
   mem = memoryBackend();
-  store._configure({ backend: mem, seedLoader: async () => structuredClone(SEED) });
+  store._configure({ backend: mem, seedLoader: async () => structuredClone(SEED), metaLoader: async () => ({ version: 1 }) });
   be = fakeBackend(role);
-  svc = createService({ api: createApi(be.transport), store, authz });
+  svc = createService({ api: createApi(be.transport), store, authz, localIdentity: email === undefined ? undefined : async () => email });
   return svc;
 }
 const writes = () => be.calls.filter((c) => !c.startsWith('GET'));
@@ -189,5 +189,88 @@ describe('storage: seeding, migration, no data loss', () => {
     expect(await store.getSettings()).toEqual({ insertMode: 'replace', confirmReplace: true });
     await store.saveSettings({ insertMode: 'append' });
     expect((await store.getSettings()).insertMode).toBe('append');
+  });
+});
+
+describe('local mode: no backend, admin decided by the Chrome account email', () => {
+  const ADMIN = 'supriya.m@commerceiq.ai';
+  it('admin email => admin; other or missing email => user (fail closed)', async () => {
+    setup('user', ADMIN); be.online = false;
+    expect(await svc.getIdentity(true)).toMatchObject({ role: 'admin', mode: 'local', email: ADMIN });
+    setup('user', 'diwagar.j@commerceiq.ai'); be.online = false;
+    expect(await svc.getRole(true)).toBe('admin');
+    setup('user', 'someone@commerceiq.ai'); be.online = false;
+    expect(await svc.getRole(true)).toBe('user');
+    setup('user', ''); be.online = false;
+    expect(await svc.getRole(true)).toBe('user');
+  });
+  it('a failing identity lookup fails closed', async () => {
+    setup('user'); be.online = false;
+    svc = createService({ api: createApi(be.transport), store, authz, localIdentity: async () => { throw new Error('no profile'); } });
+    expect(await svc.getRole(true)).toBe('user');
+  });
+  it('a reachable backend wins over the email allowlist', async () => {
+    setup('user', ADMIN); // backend online and says "user"
+    expect(await svc.getIdentity(true)).toMatchObject({ role: 'user', mode: 'backend' });
+    await expect(svc.create({ text: 'x' })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+  it('local admin full lifecycle works offline, stays in this browser, and never calls the backend', async () => {
+    setup('user', ADMIN); be.online = false;
+    const c = await svc.create({ text: 'local new', attributes: ['extract.price'] });
+    expect(c).toMatchObject({ id: 'fb-005', source: 'admin-local', active: true });
+    expect((await svc.update('fb-001', { text: 'edited locally' })).id).toBe('fb-001');
+    expect((await svc.setActive('fb-002', false)).active).toBe(false);
+    expect((await svc.remove('fb-003')).deletedAt).toBeTruthy();
+    expect((await svc.restore('fb-003')).deletedAt).toBeNull();
+    expect((await svc.list({ includeInactive: true })).length).toBe(5);
+    expect(await svc.hasLocalEdits()).toBe(true);
+    expect(be.calls.filter((x) => !x.startsWith('GET'))).toEqual([]);
+    await expect(svc.create({ text: 'edited locally' })).rejects.toMatchObject({ code: 'DUPLICATE' });
+  });
+  it('a normal user in local mode still cannot write', async () => {
+    setup('user', 'someone@commerceiq.ai'); be.online = false;
+    for (const fn of [() => svc.create({ text: 'x' }), () => svc.update('fb-001', { text: 'y' }), () => svc.remove('fb-001')]) {
+      await expect(fn()).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    }
+    expect((await store.getAll()).map((i) => i.text)).toEqual(SEED.map((i) => i.text));
+  });
+  it('a locally stored email or role grants nothing (identity comes from the Chrome profile)', async () => {
+    setup('user', 'someone@commerceiq.ai'); be.online = false;
+    await mem.set({ 'afx.devUser': ADMIN, email: ADMIN, 'afx.role': 'admin' });
+    await expect(svc.create({ text: 'x' })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+  it('when a backend later answers, local edits are backed up before the cache is replaced', async () => {
+    setup('user', ADMIN); be.online = false;
+    await svc.create({ text: 'my local edit' });
+    be.online = true;
+    expect((await svc.sync()).ok).toBe(true);
+    expect(mem.data[store.KEY_LOCAL_BACKUP].some((i) => i.text === 'my local edit')).toBe(true);
+  });
+});
+
+describe('bundle versioning', () => {
+  it('a backend-synced list is not replaced by the bundled one afterwards', async () => {
+    setup('user');
+    be.items.push({ ...SEED[0], id: 'fb-077', text: 'server only' });
+    await svc.sync();
+    expect((await svc.list()).some((i) => i.id === 'fb-077')).toBe(true);
+  });
+  const cfg = (version, seed) => store._configure({ backend: mem, seedLoader: async () => structuredClone(seed), metaLoader: async () => ({ version }) });
+  it('a newer bundled list refreshes a pristine cache', async () => {
+    mem = memoryBackend(); cfg(1, SEED); await store.getAll();
+    cfg(2, [...SEED, { ...SEED[0], id: 'fb-050', text: 'shipped in v2' }]);
+    expect((await store.getAll()).some((i) => i.id === 'fb-050')).toBe(true);
+  });
+  it('the same bundle version leaves the cache alone', async () => {
+    mem = memoryBackend(); cfg(1, SEED); await store.getAll();
+    await store.upsert({ ...SEED[0], text: 'changed' });
+    cfg(1, SEED);
+    expect((await store.getAll()).find((i) => i.id === 'fb-001').text).toBe('changed');
+  });
+  it('a newer bundle never overwrites local admin edits', async () => {
+    mem = memoryBackend(); cfg(1, SEED); await store.getAll();
+    await store.upsert({ ...SEED[0], text: 'my edit' }); await store.markLocalEdits();
+    cfg(2, SEED);
+    expect((await store.getAll()).find((i) => i.id === 'fb-001').text).toBe('my edit');
   });
 });

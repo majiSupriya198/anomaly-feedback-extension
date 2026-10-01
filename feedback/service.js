@@ -9,6 +9,7 @@
 
   function createService(deps) {
     const { api, store, authz } = deps;
+    const localIdentity = deps.localIdentity || null; // () => Promise<email>; used only when the backend is unreachable
     const A = authz.ACTIONS;
     let roleCache = null; // { role, email, at } — memory only, never persisted or trusted from storage
     let inflight = null;
@@ -20,9 +21,15 @@
       if (!force && roleCache && NOW() - roleCache.at < ROLE_TTL_MS) return roleCache;
       if (inflight) return inflight;
       inflight = (async () => {
-        let id = { role: authz.ROLES.USER, email: null, online: false };
-        try { const me = await api.me(); id = { role: authz.normaliseRole(me && me.role), email: (me && me.email) || null, online: true }; }
-        catch (e) { /* fail closed to user */ }
+        let id = { role: authz.ROLES.USER, email: null, online: false, mode: 'none' };
+        try { const me = await api.me(); id = { role: authz.normaliseRole(me && me.role), email: (me && me.email) || null, online: true, mode: 'backend' }; }
+        catch (e) {
+          // No backend: fall back to the account Chrome is signed into. Fails closed to 'user'.
+          if (localIdentity) {
+            try { const email = await localIdentity(); id = { role: authz.roleForEmail(email), email: email || null, online: false, mode: 'local' }; }
+            catch (e2) { /* stay user */ }
+          }
+        }
         roleCache = Object.assign(id, { at: NOW() });
         return roleCache;
       })().finally(() => { inflight = null; });
@@ -35,6 +42,7 @@
       try {
         const list = await api.list();
         if (!Array.isArray(list)) throw err('INVALID', 'Unexpected response from feedback service.');
+        if (await store.hasLocalEdits()) await store.backupLocal(); // never silently discard local admin edits
         await store.setAll(list);
         return { ok: true, offline: false, count: list.length };
       } catch (e) { return { ok: false, offline: true, error: e.message }; }
@@ -79,13 +87,11 @@
       return [...c.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
     }
 
+    /** Re-checks the role for a write and returns the identity (which says where the write goes). */
     async function guard(action) {
-      const role = await getRole(true); // writes always re-check the role
-      authz.assertCan(role, action);
-    }
-    async function applyWrite(promise) {
-      const item = await promise; // backend is the source of truth
-      return store.upsert(item);
+      const id = await getIdentity(true); // writes always re-check
+      authz.assertCan(id.role, action);
+      return id;
     }
     function validateText(text, all, selfId) {
       if (typeof text !== 'string' || text.trim() === '') throw err('EMPTY', 'Feedback text cannot be empty.');
@@ -93,27 +99,53 @@
     }
     function cleanAttrs(a) { return Array.isArray(a) ? [...new Set(a.map((s) => String(s).trim()).filter(Boolean))] : []; }
 
+    /** Backend mode: the server is the source of truth. Local mode (no backend): edit this browser's copy. */
+    async function write(id, op) {
+      if (id.mode === 'backend') {
+        const item = await (op.type === 'create' ? api.create(op.body) : api.patch(op.id, op.body));
+        return store.upsert(item);
+      }
+      const all = await store.getAll();
+      const now = new Date().toISOString();
+      let item;
+      if (op.type === 'create') {
+        const max = all.reduce((m, i) => Math.max(m, +((/^fb-(\d+)$/.exec(i.id) || [0, 0])[1])), 0);
+        item = { id: 'fb-' + String(max + 1).padStart(3, '0'), text: op.body.text, active: true, attributes: op.body.attributes || [], popularity: 0, source: 'admin-local', createdAt: now, updatedAt: now, deletedAt: null };
+      } else {
+        const cur = all.find((i) => i.id === op.id);
+        if (!cur) throw err('NOT_FOUND', 'Feedback not found: ' + op.id);
+        item = Object.assign({}, cur, op.body.deleted === undefined ? op.body : Object.assign({}, op.body, { deleted: undefined }), { updatedAt: now });
+        delete item.deleted;
+        if (op.body.deleted === true) item.deletedAt = now;
+        if (op.body.deleted === false) item.deletedAt = null;
+      }
+      const saved = await store.upsert(item);
+      await store.markLocalEdits();
+      return saved;
+    }
+
     async function create(input) {
-      await guard(A.CREATE);
+      const id = await guard(A.CREATE);
       validateText(input && input.text, await store.getAll(), null);
-      return applyWrite(api.create({ text: input.text, attributes: cleanAttrs(input.attributes) }));
+      return write(id, { type: 'create', body: { text: input.text, attributes: cleanAttrs(input.attributes) } });
     }
-    async function update(id, patch) {
-      await guard(A.UPDATE);
+    async function update(itemId, patch) {
+      const id = await guard(A.UPDATE);
       const body = {};
-      if (patch && 'text' in patch) { validateText(patch.text, await store.getAll(), id); body.text = patch.text; }
+      if (patch && 'text' in patch) { validateText(patch.text, await store.getAll(), itemId); body.text = patch.text; }
       if (patch && 'attributes' in patch) body.attributes = cleanAttrs(patch.attributes);
-      return applyWrite(api.patch(id, body));
+      return write(id, { type: 'patch', id: itemId, body });
     }
-    async function setActive(id, active) { await guard(A.TOGGLE); return applyWrite(api.patch(id, { active: !!active })); }
+    async function setActive(itemId, active) { const id = await guard(A.TOGGLE); return write(id, { type: 'patch', id: itemId, body: { active: !!active } }); }
     /** Soft delete: the item is hidden but kept, and can be restored. There is no hard delete. */
-    async function remove(id) { await guard(A.DELETE); return applyWrite(api.patch(id, { deleted: true })); }
-    async function restore(id) { await guard(A.RESTORE); return applyWrite(api.patch(id, { deleted: false })); }
+    async function remove(itemId) { const id = await guard(A.DELETE); return write(id, { type: 'patch', id: itemId, body: { deleted: true } }); }
+    async function restore(itemId) { const id = await guard(A.RESTORE); return write(id, { type: 'patch', id: itemId, body: { deleted: false } }); }
 
     async function markUsed(id) { authz.assertCan(await getRole(), A.SELECT); return store.recordUse(id); }
     async function exportAll() { await guard(A.VIEW_INACTIVE); return JSON.stringify(await store.getAll(), null, 2); }
+    async function hasLocalEdits() { return store.hasLocalEdits(); }
 
-    return { getIdentity, getRole, sync, list, search, categories, create, update, setActive, remove, restore, markUsed, exportAll,
+    return { getIdentity, getRole, hasLocalEdits, sync, list, search, categories, create, update, setActive, remove, restore, markUsed, exportAll,
       getUses: () => store.getUses(), getSettings: () => store.getSettings(), saveSettings: (p) => store.saveSettings(p) };
   }
 

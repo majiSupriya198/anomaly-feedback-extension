@@ -18,6 +18,14 @@
     [ROLES.ADMIN]: Object.freeze(Object.values(A)),
   });
 
+  /** Accounts that get admin in local mode (no backend), matched against the Chrome profile email.
+   *  Client-side by nature: it gates the UI and the local copy of the list only. See README. */
+  const ADMIN_EMAILS = Object.freeze(['supriya.m@commerceiq.ai', 'diwagar.j@commerceiq.ai']);
+  function roleForEmail(email) {
+    const e = typeof email === 'string' ? email.trim().toLowerCase() : '';
+    return e && ADMIN_EMAILS.indexOf(e) !== -1 ? ROLES.ADMIN : ROLES.USER;
+  }
+
   /** Anything that is not exactly 'admin' is a normal user (fail closed). */
   function normaliseRole(role) { return role === ROLES.ADMIN ? ROLES.ADMIN : ROLES.USER; }
   function can(role, action) { return POLICY[normaliseRole(role)].indexOf(action) !== -1; }
@@ -29,7 +37,7 @@
     }
   }
 
-  const api = { ACTIONS, ROLES, POLICY, can, assertCan, normaliseRole };
+  const api = { ACTIONS, ROLES, POLICY, ADMIN_EMAILS, can, assertCan, normaliseRole, roleForEmail };
   root.AFX = root.AFX || {};
   root.AFX.authz = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
