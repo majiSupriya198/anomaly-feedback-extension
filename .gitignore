@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+*.zip
+*.log
+.env
+.env.*
+*.pem
+*.key
+coverage/
+dist/
+# local dev server data / scratch
+server/*.local.json

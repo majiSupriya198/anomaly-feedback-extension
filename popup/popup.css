@@ -1,0 +1,7 @@
+body{width:420px;margin:0;padding:10px;font:13px 'DM Sans',system-ui,sans-serif;color:#000;background:#fff}
+input{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #b8bcd8;border-radius:6px;font:inherit}
+#list{max-height:340px;overflow:auto;margin:8px 0}
+.item{padding:8px;border-bottom:1px solid #eceef8;cursor:pointer;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.item:hover{background:#f6f0ff}
+#msg{min-height:18px;color:#210235;font-size:12px}
+button{padding:6px 10px;border-radius:6px;border:1px solid #1F22B2;background:#fff;color:#1F22B2;font:inherit;cursor:pointer}

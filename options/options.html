@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Feedback helper settings</title>
+<link rel="stylesheet" href="options.css"></head>
+<body><main>
+  <h1>Feedback helper settings</h1>
+  <p class="sub">These preferences are yours only. Feedback itself is managed by admins.</p>
+  <section class="card">
+    <h2>Insert behaviour</h2>
+    <label><input type="radio" name="mode" value="replace"> Replace the field text</label>
+    <label><input type="radio" name="mode" value="append"> Append to the field text</label>
+    <label><input type="checkbox" id="confirm"> Ask before replacing existing text</label>
+  </section>
+  <section class="card" id="adminCard" hidden>
+    <h2>Admin</h2><button id="openAdmin" class="primary">Open feedback admin</button>
+  </section>
+</main>
+<script src="../authz/authz.js"></script>
+<script src="../storage/feedbackStore.js"></script>
+<script src="../feedback/api.js"></script>
+<script src="../feedback/service.js"></script>
+<script src="options.js"></script>
+</body></html>

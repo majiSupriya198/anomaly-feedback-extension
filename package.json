@@ -1,0 +1,16 @@
+{
+  "name": "anomaly-feedback-extension",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "vitest run",
+    "build:data": "node scripts/csv-to-json.mjs",
+    "dev:server": "node server/dev-server.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vitest": "^3.0.0"
+  }
+}

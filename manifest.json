@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Anomaly Hub Feedback Helper",
+  "version": "1.0.0",
+  "description": "Search and insert approved feedback into Anomaly Hub. Admins manage the list. Never submits anything.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://anomaly-hub.ef.uk.com/*"
+  ],
+  "background": {
+    "service_worker": "background/serviceWorker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://anomaly-hub.ef.uk.com/*"
+      ],
+      "js": [
+        "authz/authz.js",
+        "storage/feedbackStore.js",
+        "feedback/api.js",
+        "feedback/service.js",
+        "content/domAdapter.js",
+        "ui/panel.js",
+        "content/anomalyHub.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "data/feedback.json"
+      ],
+      "matches": [
+        "https://anomaly-hub.ef.uk.com/*"
+      ]
+    }
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Feedback helper",
+    "default_popup": "popup/popup.html"
+  },
+  "optional_host_permissions": [
+    "http://localhost:8787/*"
+  ]
+}

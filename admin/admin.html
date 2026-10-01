@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Feedback admin</title>
+<link rel="stylesheet" href="admin.css"></head>
+<body>
+<main>
+  <h1>Feedback admin</h1>
+  <div id="who" class="sub">Checking access…</div>
+  <div id="gate" hidden class="card"></div>
+  <div id="app" hidden>
+    <section class="card">
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Search feedback…" aria-label="Search">
+        <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+        <label><input type="checkbox" id="showInactive" checked> Show inactive</label>
+        <label><input type="checkbox" id="showDeleted"> Show deleted</label>
+        <button id="add" class="primary">+ Add feedback</button>
+        <button id="refresh">Refresh from server</button>
+        <button id="export">Export JSON</button>
+      </div>
+      <div id="msg" role="status"></div>
+      <div id="count" class="sub"></div>
+      <table><thead><tr><th>Feedback</th><th>Categories</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+    </section>
+  </div>
+</main>
+<script src="../authz/authz.js"></script>
+<script src="../storage/feedbackStore.js"></script>
+<script src="../feedback/api.js"></script>
+<script src="../feedback/service.js"></script>
+<script src="admin.js"></script>
+</body></html>

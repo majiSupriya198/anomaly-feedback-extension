@@ -1,0 +1,20 @@
+body{margin:0;background:#fff;color:#000;font-family:'DM Sans',system-ui,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:24px}
+h1,h2{color:#210235;margin:0 0 8px}
+h1{font-size:24px}h2{font-size:16px}
+.sub{color:#555;font-size:13px;margin:0 0 12px}
+.card{border:1px solid #d6d8e6;border-radius:10px;padding:16px;margin-bottom:16px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+input[type=search]{flex:1;min-width:220px}
+input[type=search],textarea,select{padding:7px 9px;border:1px solid #b8bcd8;border-radius:6px;font:inherit}
+button,.btn{padding:7px 12px;border-radius:6px;border:1px solid #1F22B2;background:#fff;color:#1F22B2;font:inherit;cursor:pointer;display:inline-block}
+button.primary{background:#1F22B2;color:#fff}
+button.danger{border-color:#c0392b;color:#c0392b}
+#msg{min-height:20px;font-size:13px;color:#210235}#msg.err{color:#c0392b}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:#210235;border-bottom:2px solid #5AAFFE;padding:6px}
+td{vertical-align:top;padding:8px 6px;border-bottom:1px solid #eceef8}
+td.text{white-space:pre-wrap;width:60%}
+td.acts{white-space:nowrap}
+textarea{width:100%;min-height:110px}
+label{display:block;margin:6px 0}
