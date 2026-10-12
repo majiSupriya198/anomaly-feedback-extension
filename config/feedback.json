@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "version": "1.0.0",
-  "updatedAt": "2026-10-12T00:00:00Z",
+  "version": "1.0.1",
+  "updatedAt": "2026-10-12T06:30:29Z",
   "items": [
     {
       "id": "fb-001",
@@ -1340,6 +1340,17 @@
       "source": "csv",
       "createdAt": "2026-10-01T11:35:05.197Z",
       "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-999",
+      "text": "[DEPLOY TEST] Temporary item to verify remote config updates. Safe to ignore; it will be removed.",
+      "active": true,
+      "attributes": [],
+      "popularity": 0,
+      "source": "repo",
+      "createdAt": "2026-10-12T06:30:29Z",
+      "updatedAt": "2026-10-12T06:30:29Z",
       "deletedAt": null
     }
   ]
