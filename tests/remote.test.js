@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { req, memoryBackend, SEED, sleep } from './helpers.js';
+import { req, memoryBackend, SEED } from './helpers.js';
 
 const schema = req('../feedback/configSchema.js');
 const store = req('../storage/feedbackStore.js');
@@ -208,5 +208,92 @@ describe('user-specific state stays local', () => {
     await mk().check();
     expect((await store.getUses())['fb-001']).toBe(1);
     expect((await store.getSettings()).insertMode).toBe('append');
+  });
+});
+
+describe('missing fields', () => {
+  beforeEach(() => setup());
+  const field = (obj, path) => { const o = structuredClone(obj); const k = path.split('.'); let t = o; for (let i = 0; i < k.length - 1; i++) t = t[k[i]]; delete t[k[k.length - 1]]; return o; };
+  it.each(['schemaVersion', 'version', 'updatedAt', 'items', 'items.0.id', 'items.0.text'])('feedback.json without "%s" is rejected and the cache is kept', async (path) => {
+    const before = JSON.stringify(await store.getAll());
+    const bad = field(cfg('1.0.9', [item(90, 'x')]), path);
+    if (path === 'version') { await site.publish(cfg('1.0.9', [item(90, 'x')])); site.files['config/feedback.json'] = JSON.stringify(bad); }
+    else await site.publish(bad, { version: '1.0.9' });
+    const r = await mk().check();
+    expect(r.status).toBe('error');
+    expect(JSON.stringify(await store.getAll())).toBe(before);
+  });
+  it.each(['schemaVersion', 'version', 'updatedAt', 'sha256'])('version.json without "%s" is rejected', async (key) => {
+    const before = JSON.stringify(await store.getAll());
+    const info = JSON.parse(site.files['config/version.json']); delete info[key];
+    site.files['config/version.json'] = JSON.stringify(info);
+    expect((await mk().check()).status).toBe('error');
+    expect(JSON.stringify(await store.getAll())).toBe(before);
+  });
+  it('an empty object or empty file is rejected', async () => {
+    for (const body of ['{}', '', 'null', '[]']) {
+      await setup(); site.files['config/version.json'] = body;
+      expect((await mk().check()).status).toBe('error');
+    }
+  });
+});
+
+describe('browser / service worker restart', () => {
+  beforeEach(() => setup());
+  it('after a restart the cached list is used with zero network calls and the throttle still holds', async () => {
+    await mk().check();
+    const listBefore = JSON.stringify(await store.getAll());
+    // simulate Chrome killing the service worker and a browser restart: all in-memory state is gone,
+    // only chrome.storage (mem) survives
+    const surviving = mem;
+    store._configure({ backend: surviving, seedLoader: async () => structuredClone(SEED), metaLoader: async () => ({ version: '1.0.0' }) });
+    site.calls.length = 0;
+    expect(JSON.stringify(await store.getAll())).toBe(listBefore);
+    expect(await store.getConfigVersion()).toBe('1.0.1');
+    expect((await mk().check()).status).toBe('throttled');
+    expect(site.calls).toEqual([]);
+  });
+  it('a restart while Pages is down still serves the cached list', async () => {
+    await mk().check();
+    const surviving = mem;
+    store._configure({ backend: surviving, seedLoader: async () => structuredClone(SEED), metaLoader: async () => ({ version: '1.0.0' }) });
+    site.fail = 'offline'; clock += 16 * 60e3;
+    expect((await mk().check()).status).toBe('error');
+    expect((await store.getAll()).some((i) => i.text === 'shipped remotely')).toBe(true);
+  });
+  it('a corrupted cache value does not crash reads (falls back to the bundled list)', async () => {
+    await mk().check();
+    mem.data['afx.feedback'] = 'garbage';
+    store._configure({ backend: mem, seedLoader: async () => structuredClone(SEED), metaLoader: async () => ({ version: '1.0.0' }) });
+    const r = await store.getAll();
+    expect(Array.isArray(r)).toBe(true);
+    expect(r.map((i) => i.id)).toEqual(SEED.map((i) => i.id)); // recovered from the bundled list
+  });
+});
+
+describe('upgrading to the generalized list keeps each user\'s local state', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const shipped = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/feedback.json'), 'utf8'));
+  const oldList = () => shipped.items.slice(0, 5).map((i) => ({ ...i, text: 'OLD WORDING ' + i.id, deletedAt: null, active: true }));
+  const bundle = (b) => store._configure({ backend: b, seedLoader: async () => structuredClone(shipped.items), metaLoader: async () => ({ version: shipped.version }) });
+
+  it('replaces the old cached list, but usage counts and settings survive (stored under separate keys)', async () => {
+    const b = memoryBackend();
+    await b.set({ 'afx.feedback': oldList(), 'afx.configVersion': '1.0.2', 'afx.uses': { 'fb-001': 5, 'fb-007': 3 }, 'afx.settings': { insertMode: 'append', confirmReplace: false } });
+    bundle(b);
+    const list = await store.getAll();
+    expect(JSON.stringify(list)).not.toMatch(/OLD WORDING/);
+    expect(list.filter((i) => i.active && !i.deletedAt).length).toBe(shipped.items.filter((i) => i.active !== false && !i.deletedAt).length);
+    expect(await store.getConfigVersion()).toBe(shipped.version);
+    expect(await store.getUses()).toEqual({ 'fb-001': 5, 'fb-007': 3 }); // ids of merged entries still resolve; counts untouched
+    expect(await store.getSettings()).toEqual({ insertMode: 'append', confirmReplace: false });
+  });
+  it('local admin edits are never overwritten by the upgrade', async () => {
+    const b = memoryBackend();
+    const mine = oldList(); mine[0].text = 'MY LOCAL EDIT';
+    await b.set({ 'afx.feedback': mine, 'afx.configVersion': '1.0.2', 'afx.localEdits': true });
+    bundle(b);
+    expect((await store.getAll())[0].text).toBe('MY LOCAL EDIT');
   });
 });

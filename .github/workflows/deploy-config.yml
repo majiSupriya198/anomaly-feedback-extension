@@ -31,6 +31,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm test
       - name: Config version must increase when the config changes
         run: node scripts/check-version-bump.mjs HEAD~1

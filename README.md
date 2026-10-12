@@ -78,6 +78,14 @@ Extension service worker ─► version.json (tiny) ─► newer? ─► feedbac
 - **Local admin edits** are never overwritten by a remote update.
 - **Only data is downloaded.** The extension never fetches or runs remote code, which Chrome doesn't allow in Manifest V3 anyway.
 
+### Applying a generalized feedback sheet
+`npm run import:generalized -- sheet.tsv [--prune] [--write]` applies a sheet export (columns *Original ID, Attribute, Popularity, Generalized feedback, Status*) to `config/feedback.json` using the managed format. It is a dry run unless `--write` is given.
+- **mapped** rows: the item keeps its stable ID and gets the generalized text. Rows with identical text merge into one canonical item (most popular ID, popularity summed). The others are **soft-deleted** with `mergedInto`, so their IDs still resolve and old wording is dropped.
+- **NEEDS MANUAL REVIEW** rows are never promoted: the item is set inactive (hidden from normal users) until someone reviews it.
+- **new** rows are added with fresh IDs, unless identical text already exists.
+- **`--prune`** soft-deletes anything in the config that is not in the sheet, so the live list is exactly the sheet.
+- Safe to re-run: a second run changes nothing. The version is bumped (minor) only when something changed. Review the diff, then follow the normal publish flow.
+
 ### What updates remotely, and what doesn't
 | Change | How it reaches users |
 |---|---|
@@ -107,7 +115,10 @@ git clone <repo-url> && cd anomaly-feedback-extension
 ## Development
 ```bash
 npm install
-npm test                      # 60+ tests: authz, service, storage, server, DOM, integration
+npm test                      # unit + integration tests (authz, service, storage, remote config, server, DOM)
+npm run lint                  # ESLint (there is no TypeScript, so no separate type check)
+npm run verify                # lint + tests + build:site + version-bump check (what CI runs)
+npm run test:browser          # real Chrome end-to-end of the unmodified extension (see below)
 npm run build:data -- path/to/data.csv   # CSV -> config/feedback.json
 npm run publish:list -- export.json      # admin export -> config/feedback.json (bumps version)
 npm run build:site                        # builds the GitHub Pages site into ./site (what CI publishes)
@@ -119,6 +130,9 @@ To try admin features locally: start the dev server, then in the extension's ser
 chrome.storage.local.set({ 'afx.devApi': true, 'afx.devUser': 'supriya.m@commerceiq.ai' })
 ```
 and grant the optional `http://localhost:8787/*` permission. This mode is for development only. `X-Dev-User` is not real authentication.
+
+### Real-Chrome end-to-end test
+`npm run test:browser` loads this folder as an unpacked extension in Chrome for Testing (set `AFX_CHROME` to another Chromium build; branded Chrome 137+ ignores `--load-extension`). The Hub and GitHub Pages hostnames are mapped to a local HTTPS server, so the extension's real URLs are exercised without touching the real sites. It checks, in one run: the existing helper (list, search, insert, nothing submitted), first check, throttling, the acceptance flow (a published change reaches the installed extension with the extension files byte-for-byte unchanged), an unchanged config, Pages down, invalid JSON and a bad hash, a browser restart while Pages is down, a second profile receiving the same list, and zero console errors. It is not part of `npm test` because it needs a Chromium binary.
 
 ### Layout
 ```

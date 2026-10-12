@@ -172,7 +172,7 @@ describe('storage: seeding, migration, no data loss', () => {
     store._configure({ backend: mem, seedLoader: async () => structuredClone(SEED) });
     const list = await store.getAll();
     expect(list.map((i) => i.id)).toEqual(['fb-001', 'fb-002']);
-    expect(list.every((i) => i.active === true && i.createdAt && i.updatedAt)).toBe(true);
+    expect(list.every((i) => typeof i.active === 'boolean' && i.createdAt && i.updatedAt)).toBe(true);
     expect(mem.data['afx.legacyBackup']).toEqual(old);
     expect(mem.data['afx.options']).toEqual(old); // original untouched
   });
@@ -181,8 +181,9 @@ describe('storage: seeding, migration, no data loss', () => {
     const list = JSON.parse(fs.readFileSync(new URL('../config/feedback.json', import.meta.url), 'utf8')).items;
     expect(list.length).toBeGreaterThanOrEqual(103);
     expect(new Set(list.map((i) => i.id)).size).toBe(list.length);
-    expect(new Set(list.map((i) => i.text)).size).toBe(list.length);
-    expect(list.every((i) => /^fb-\d{3}$/.test(i.id) && i.active === true && i.createdAt && i.updatedAt && 'deletedAt' in i)).toBe(true);
+    const live = list.filter((i) => i.active && !i.deletedAt);
+    expect(new Set(live.map((i) => i.text)).size).toBe(live.length); // soft-deleted entries may share their canonical text
+    expect(list.every((i) => /^fb-\d{3}$/.test(i.id) && typeof i.active === 'boolean' && i.createdAt && i.updatedAt && 'deletedAt' in i)).toBe(true);
   });
   it('settings default and persist', async () => {
     setup('user');
