@@ -70,6 +70,8 @@
   if (window.navigation && window.navigation.addEventListener) window.navigation.addEventListener('navigatesuccess', schedule);
   chrome.storage.onChanged.addListener((changes, area) => { if (area === 'local' && changes[store.KEY_FEEDBACK]) panel.reload(); });
 
+  // Ask the service worker to refresh the shared list. It is throttled there, so this is cheap.
+  try { chrome.runtime.sendMessage({ type: 'afx.checkConfig' }, () => void chrome.runtime.lastError); } catch (e) { /* extension reloaded */ }
   service.sync().finally(() => panel.reload().then(refresh).catch(() => refresh()));
   ensureMounted();
 })();

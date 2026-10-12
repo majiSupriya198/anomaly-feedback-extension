@@ -9,7 +9,7 @@ const { createService } = req('../feedback/service.js');
 let mem, be, svc;
 function setup(role, email) {
   mem = memoryBackend();
-  store._configure({ backend: mem, seedLoader: async () => structuredClone(SEED), metaLoader: async () => ({ version: 1 }) });
+  store._configure({ backend: mem, seedLoader: async () => structuredClone(SEED), metaLoader: async () => ({ version: '1.0.0' }) });
   be = fakeBackend(role);
   svc = createService({ api: createApi(be.transport), store, authz, localIdentity: email === undefined ? undefined : async () => email });
   return svc;
@@ -176,9 +176,9 @@ describe('storage: seeding, migration, no data loss', () => {
     expect(mem.data['afx.legacyBackup']).toEqual(old);
     expect(mem.data['afx.options']).toEqual(old); // original untouched
   });
-  it('bundled data/feedback.json matches the schema', async () => {
+  it('bundled config/feedback.json matches the schema', async () => {
     const fs = await import('node:fs');
-    const list = JSON.parse(fs.readFileSync(new URL('../data/feedback.json', import.meta.url), 'utf8'));
+    const list = JSON.parse(fs.readFileSync(new URL('../config/feedback.json', import.meta.url), 'utf8')).items;
     expect(list).toHaveLength(103);
     expect(new Set(list.map((i) => i.id)).size).toBe(103);
     expect(new Set(list.map((i) => i.text)).size).toBe(103);

@@ -1,0 +1,1346 @@
+{
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "updatedAt": "2026-10-12T00:00:00Z",
+  "items": [
+    {
+      "id": "fb-001",
+      "text": "The screenshot shows that the Pickup fulfillment option is Available. Since at least one fulfillment option is available, this should not be classified as an OutOfStock case.",
+      "active": true,
+      "attributes": [
+        "extract.outOfStock"
+      ],
+      "popularity": 27,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-002",
+      "text": "This is a site-wide promotional banner and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 18,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-003",
+      "text": "The bullet content is present on the page but is rendered as plain text in a single paragraph. During extraction, the bullet separators are removed, making it impossible to reliably identify and extract individual bullet points. This is a known limitation and is not feasible to resolve.",
+      "active": true,
+      "attributes": [
+        "extract.bulletPoints"
+      ],
+      "popularity": 17,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-004",
+      "text": "This is a false positive. The extracted value is from the main product’s “Label Info” → “Ingredients” section and the attribute is present on the PDP. The deterministic comparison reports a mismatch because the DOM contains additional/repeated content, while the extracted value is a partial representation. Therefore, this should not be treated as a TRUE anomaly.",
+      "active": true,
+      "attributes": [
+        "extract.ingredients"
+      ],
+      "popularity": 13,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-005",
+      "text": "This is a false positive. Although the ingredients are visible in the product packaging image, they are not available as directly extractable text from the product page. Image-only evidence is not sufficient to identify a valid `ingredients` value. Therefore, it should not be considered a valid ingredient extraction.",
+      "active": true,
+      "attributes": [
+        "extract.ingredients"
+      ],
+      "popularity": 12,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-006",
+      "text": "This is a false positive. The extracted value consists only of pricing-related information, such as the current price, VAT-inclusive price, and PMP/PM price-marked-pack information. These are not product-level promotional offers or discounts. Therefore, these values should not be extracted as `promotionText`.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 11,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-007",
+      "text": "This is a shipping-related offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 11,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-008",
+      "text": "This is a false positive. Subscribe-related pricing, cart-level pricing or discounts, and shipping/delivery-related offers should not be extracted as `promotionText`. The extracted value is associated with these excluded contexts, so it should not be considered a valid product promotion.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 10,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-009",
+      "text": "False positive: This is a retailer-level offer shown after login/sign-up, not a product-specific promotion.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 9,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-010",
+      "text": "This is a shipping-related offer and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 9,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-011",
+      "text": "This is a membership/loyalty program benefit, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 8,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-012",
+      "text": "This is a credit card offer and is not a product-specific promotion. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 7,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-013",
+      "text": "The displayed price belongs to a different variant, not the currently selected main product. Therefore, it should not be extracted as the main product price.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 7,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-014",
+      "text": "This is a false positive. The extracted value is correct for the current product. The feedback appears to have referenced a value from a different product, so it should not be considered an extraction issue.",
+      "active": true,
+      "attributes": [
+        "feedback.commentCount"
+      ],
+      "popularity": 6,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-015",
+      "text": "This is a false positive. The extracted price is correct for the current product. The feedback appears to have referenced a price from a different product, so it should not be considered an extraction issue.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 6,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-016",
+      "text": "The value is present and has been successfully extracted from the product page. The DOM contains repeated product content, which can cause a difference between the DOM value and the extracted value. Therefore, this should not be considered a true anomaly.",
+      "active": true,
+      "attributes": [
+        "extract.description"
+      ],
+      "popularity": 6,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-017",
+      "text": "The value is correctly extracted. The HTML contains the text **“Gesponsert”**, which means **“Sponsored”** in German, and the same text is also visible in the rendered page and OCR. So, the extraction is correct; this is a **non-null issue**, not an incorrect extraction issue.",
+      "active": true,
+      "attributes": [
+        "extract.sponsored"
+      ],
+      "popularity": 6,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-018",
+      "text": "The displayed offers are site-wide shipping or service offers and are not specific to the main product. They should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 6,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-019",
+      "text": "In retailer rules flow, extract groupId only for products with variants. No need to extract groupId for single products.",
+      "active": true,
+      "attributes": [
+        "extract.groupId"
+      ],
+      "popularity": 5,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-020",
+      "text": "The \"Labofnac Note technique\" and \"CONSEILS FNAC\" sections contain informational/editorial content related to reviews and buying guidance, not rich content for the main product. Therefore, no richContent selector is required.",
+      "active": true,
+      "attributes": [
+        "extract.hasRichContent"
+      ],
+      "popularity": 5,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-021",
+      "text": "This is a false positive. The extracted average rating is correct for the current product. The feedback appears to have referenced a value from a different product, so it should not be considered an extraction issue.",
+      "active": true,
+      "attributes": [
+        "feedback.avgRating"
+      ],
+      "popularity": 4,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-022",
+      "text": "This is a purchase limit notice, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 4,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-023",
+      "text": "The promotion belongs to a different product and should not be extracted as the main product's promotion text.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 4,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-024",
+      "text": "This is a site-wide offer and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 4,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-025",
+      "text": "This is a bundle/conditional offer that requires purchasing an additional service or product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 4,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-026",
+      "text": "This is a site-wide delivery and new customer offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 4,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-027",
+      "text": "**False Positive:** The product page contains 5 valid hero product image URLs, and all 5 URLs are correctly extracted. Although one of the images is initially hidden and becomes visible only after clicking the “Mark” option, it is still part of the product’s available image set. Therefore, the extracted value is valid and the reported image count anomaly is not applicable.",
+      "active": true,
+      "attributes": [
+        "extract.imageUrl"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-028",
+      "text": "This is a false positive. Although the product name is present in the HTML, it is coming from a hidden/background product listing while the page is displaying a “Product not available” popup. Therefore, the value does not represent the currently displayed main product and should not be considered a valid product name extraction.",
+      "active": true,
+      "attributes": [
+        "extract.name"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-029",
+      "text": "The manufacturer name is mentioned only as a contact address under the \"Refunds & returns\" section. It is not explicitly provided in a manufacturer field for the main product. Therefore, it should not be extracted as the product's manufacturer.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-030",
+      "text": "Bullet point is visible only in the screenshot and not present in the HTML, as it is rendered using CSS ::before.",
+      "active": true,
+      "attributes": [
+        "extract.bulletPoints"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-031",
+      "text": "This is a website-exclusive offer and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-032",
+      "text": "This promotion is conditional and requires purchasing multiple items. It should not be extracted as the main product's promotion text.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-033",
+      "text": "it should be treated as brand information, not manufacturer information. Therefore, it should not be extracted as the manufacturer.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-034",
+      "text": "This is a membership/loyalty program offer and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 3,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-035",
+      "text": "he live page has a loading issue, so the visible image count cannot be used to validate the extracted image count. The extracted 14 image URLs are correct.",
+      "active": true,
+      "attributes": [
+        "extract.imageUrl"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-036",
+      "text": "This is a false positive. Although the `pricePerUnit` value is present in the HTML, it belongs to an unselected variant and not to the currently selected/main product variant. Therefore, it should not be considered a valid `pricePerUnit` value for the current product.",
+      "active": true,
+      "attributes": [
+        "extract.pricePerUnit"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-037",
+      "text": "This is a false positive. Although “REFILL”, “CLICK”, and “WRITE” are visible in the product image, the instructions are image-only and are not available as directly extractable text from the product page. Therefore, image-based instructions should not be considered a valid `instructionsForUse` extraction.",
+      "active": true,
+      "attributes": [
+        "extract.instructions"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-038",
+      "text": "This should be considered a false positive. Although the description contains text that explains how to use the product, there is no dedicated Instructions, Directions, or Usage section identifying it as `instructionsForUse`. Extracting usage-related text directly from a general description can also lead to incorrect extraction across different products and page structures. Therefore, `instructionsForUse` should not be extracted from the description alone without a clear instruction-specific section or label.",
+      "active": true,
+      "attributes": [
+        "extract.instructions"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-039",
+      "text": "The image extraction is valid. The extractor captured 8 distinct images, so the image attribute is correctly identified as non-null. The visible image count reported by the screenshot should not be used alone to classify the attribute as null.",
+      "active": true,
+      "attributes": [
+        "extract.imageUrl"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-040",
+      "text": "“Livraison GRATUITE” means free shipping. As per the extraction rules, logistical offers such as free shipping should not be considered as promotionText. This should be treated as a **False Positive**.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-041",
+      "text": "This is a cart-level savings offer, not a main product promotion. It should not be extracted as promotionText. **False Positive.**",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-042",
+      "text": "False Positive — \"Meal Deals with offers\" has no $, %, multi-buy, bundle, or coupon value, so it's generic marketing, not valid PromotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-043",
+      "text": "The manufacturer names are provided as contact information under the \"Refunds & returns\" section, but they are not explicitly identified as the manufacturer of the main product. Therefore, they should not be extracted as the product's manufacturer.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-044",
+      "text": "Product is not available in the screenshot. The extracted value “Marjane Market” is the store name, not a product name. This should be considered a **False Positive**.",
+      "active": true,
+      "attributes": [
+        "extract.name"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-045",
+      "text": "False positive. The extracted text is not the actual promotion for the main product. **“Nectar price available for delivery or collection until…”** is a pricing/availability message and should not be extracted as `promotionText`.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-046",
+      "text": "False positive: Selected variant is available with Add to Cart; only the unselected variant is out of stock.",
+      "active": true,
+      "attributes": [
+        "extract.outOfStock"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-047",
+      "text": "Image extraction invalid, because the description content is available in an image and should not be extracted from the image.",
+      "active": true,
+      "attributes": [
+        "extract.description"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-048",
+      "text": "The absence of an \"Add to Cart\" button or a quantity value of \"0\" alone is not sufficient to classify the product as Out of Stock. This should not be considered a valid out-of-stock case.",
+      "active": true,
+      "attributes": [
+        "extract.outOfStock"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-049",
+      "text": "This is a loyalty/rewards program benefit and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-050",
+      "text": "False positive. The detected image+text module is a \"Create my profile\" promotional image, not rich content.",
+      "active": true,
+      "attributes": [
+        "extract.hasRichContent"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-051",
+      "text": "\"With loyalty card\" indicates a pricing condition, not a promotion text. It should not be extracted as the main product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-052",
+      "text": "\"Spare ganz einfach 5 € – Registriere dich, stimme Werbe-E-Mails zu und spare 5 €\" is a site-wide signup offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-053",
+      "text": "The description mentions product claims, but it does not provide a separate ingredients section. Therefore, ingredients should not be extracted from the product description.",
+      "active": true,
+      "attributes": [
+        "extract.ingredients"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-054",
+      "text": "This is a membership/club signup offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-055",
+      "text": "The identified price belongs to a similar/related product, not the main product. It should not be extracted as the main product price.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 2,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-056",
+      "text": "False Positive: The extracted value 12 pk x 12 fl oz represents the same net quantity as the expected page value 12 pk / 12 fl oz. The difference is only the separator (x vs /), while the quantity and units are unchanged. Therefore, the extracted value is semantically correct and should not be considered an anomaly.",
+      "active": true,
+      "attributes": [
+        "extract.netQuantity"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-057",
+      "text": "The extracted value is correct. The page explicitly displays the price range $109.99-$199.99, and the extractor has captured the value as it appears on the page.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-058",
+      "text": "Do not extract `$0.00` as the product price. Treat `$0.00` as a zero value and return `null` for the price.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-059",
+      "text": "The price is not visible in the screenshot. Do not extract the price based only on markdown or JSON data when there is no visible price on the rendered page.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-060",
+      "text": "For netQuantity, 1000 is only a count and does not have a supported measurement unit such as g, kg, ml, or L. Therefore, it should not be extracted as netQuantity and should remain null.",
+      "active": true,
+      "attributes": [
+        "extract.netQuantity"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-061",
+      "text": "For netQuantity, 3 is only a count and does not have a supported measurement unit such as g, kg, ml, or L. Therefore, it should not be extracted as netQuantity and should remain null.",
+      "active": true,
+      "attributes": [
+        "extract.netQuantity"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-062",
+      "text": "For this specific case, do not extract `Rayon, Cotton` as ingredients. The value appears under the `Material` label in the `Specifications` section, and there is no `Ingredients` or `Composition` label identifying it as ingredients.\n\nDo not infer the ingredients attribute from the `Material` field based only on the product category.",
+      "active": true,
+      "attributes": [
+        "extract.ingredients"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-063",
+      "text": "This is a false positive. The extracted comment count **581** is correct for the current product. The feedback expected value **561** appears to reference a different or outdated value. Therefore, the current extraction of **581** should be considered valid.",
+      "active": true,
+      "attributes": [
+        "feedback.commentCount"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-064",
+      "text": "This is a false positive. The extracted value **65** is the correct review/comment count for the current product, as confirmed by the product tile HTML. The **4598** value belongs to a different product and was incorrectly used in the feedback. Therefore, the current extraction is correct.",
+      "active": true,
+      "attributes": [
+        "feedback.commentCount"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-065",
+      "text": "This is a false positive. The extracted value **69** is the correct review/comment count for the current product, as confirmed by the product tile HTML. The **788** value belongs to a different product and was incorrectly used in the feedback. Therefore, the current extraction is correct.",
+      "active": true,
+      "attributes": [
+        "feedback.commentCount"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-066",
+      "text": "This is a false positive. Although “Servir frío” and the caffeine-related restriction are present in the HTML, they are storage/serving information and product warnings, not actionable usage instructions. They are also located under sections such as “Condiciones de conservación” and “Otras Menciones Obligatorias”, rather than an instruction or directions section. Therefore, these values should not be extracted as `instructionsForUse`.",
+      "active": true,
+      "attributes": [
+        "extract.instructions"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-067",
+      "text": "This is a false positive. Although “Naproxen Sodium 220 mg” is present in the product description, it is not provided within a specific ingredient section or under an ingredient-specific label. Therefore, the value cannot be reliably identified as the product’s `ingredients` attribute and should not be extracted as a valid ingredient value.",
+      "active": true,
+      "attributes": [
+        "extract.ingredients"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-068",
+      "text": "This is a false positive. Although `ratingReviewCount: 1549` is present in the product JSON, the review/comment count is not visible on the current page because the feedback section has not loaded. Therefore, the JSON value alone should not be treated as a confirmed visible `commentCount` for the current product.",
+      "active": true,
+      "attributes": [
+        "feedback.commentCount"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-069",
+      "text": "The screenshot clearly shows only “$9.82” as the product price. There is no “each” or other per-unit indication in the screenshot. Therefore, the extracted value should be considered the main `price`, and the reasoning incorrectly identifies it as a per-unit price.",
+      "active": true,
+      "attributes": [
+        "extract.pricePerUnit"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-070",
+      "text": "The extracted value is invalid because it is marketing/promotional content from the “Brand Information” section, not a valid attribute value. Therefore, this should be treated as a false positive.",
+      "active": true,
+      "attributes": [
+        "extract.description"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-071",
+      "text": "This is a false positive. Although “13k+ bought in last month” is directly available as extractable HTML text, it represents a sales-volume/popularity indicator, not a product promotion, discount, or offer. Therefore, it should not be extracted as `promotionText` and should be treated as an invalid extraction.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-072",
+      "text": "The extracted price 3749 NOK is from a hidden videoly-product-price section, not the main product's visible price slot. Therefore, this should be considered a False Positive.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-073",
+      "text": "The “Featured Videos” section is present, but the actual product video is not available/visible. The section heading alone is not sufficient to confirm a video. This should be considered a **False Positive**.",
+      "active": true,
+      "attributes": [
+        "extract.video"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-074",
+      "text": "Description should be extracted only from the content below the \"Description\" section, not from \"Highlights\".",
+      "active": true,
+      "attributes": [
+        "extract.description"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-075",
+      "text": "This is an installment/financing payment option, not a product promotion. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-076",
+      "text": "\"Marca comercial\" indicates the commercial brand, not the manufacturer. It should not be extracted as the product's manufacturer unless a separate manufacturer is explicitly specified.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-077",
+      "text": "\"Marca comercial\" represents the commercial brand, not the manufacturer. It should not be extracted as the product's manufacturer, even when it appears under the \"Persona responsable de la UE\" section.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-078",
+      "text": "The bullet points use decorative symbols that are not preserved during extraction, so they cannot be extracted as separate bullet points. This is a known limitation.",
+      "active": true,
+      "attributes": [
+        "extract.bulletPoints"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-079",
+      "text": "These are numbered points within a consumer notice image, not product bullet points. Content embedded in images should not be extracted as the product's bulletPoint.",
+      "active": true,
+      "attributes": [
+        "extract.bulletPoints"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-080",
+      "text": "This is a competition/ticket promotion and not a direct product promotion. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-081",
+      "text": "This is a site-wide new customer offer and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-082",
+      "text": "\"EL CORTE INGLES\" is listed as the EU Responsible Person and Trademark, not as the manufacturer. The page does not explicitly identify a manufacturer, so manufacturer information should not be extracted from these labels.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-083",
+      "text": "\"FONTVELLA\" is listed as the EU Responsible Person and Trademark, not as the manufacturer. The page does not explicitly provide manufacturer information, so it should not be extracted as the manufacturer.",
+      "active": true,
+      "attributes": [
+        "extract.manufacturer"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-084",
+      "text": "This is a site-wide shipping offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-085",
+      "text": "Envío GRATIS a España a partir de 99€",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-086",
+      "text": "The detected green play icon is a floating chat widget popup, not an official product video.",
+      "active": true,
+      "attributes": [
+        "extract.video"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-087",
+      "text": "Gather is not done.",
+      "active": true,
+      "attributes": [
+        "extract.outOfStock"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-088",
+      "text": "Price not display in this product.",
+      "active": true,
+      "attributes": [
+        "extract.price"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-089",
+      "text": "\"Pack Size 1\" indicates the number of packs, not the product's net quantity. It should not be extracted as netQuantity.",
+      "active": true,
+      "attributes": [
+        "extract.netQuantity"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-090",
+      "text": "\"Number of Rolls Included\" indicates the number of items in the package, not the product's net quantity. It should not be extracted as netQuantity.",
+      "active": true,
+      "attributes": [
+        "extract.netQuantity"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-091",
+      "text": "\"Pack Size 48\" indicates the number of packs, not the product's net quantity. It should not be extracted as netQuantity.",
+      "active": true,
+      "attributes": [
+        "extract.netQuantity"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-092",
+      "text": "A nutrition label image within the Ingredients & Nutrition Facts section is informational content, not rich content. It should not be classified as richContent.",
+      "active": true,
+      "attributes": [
+        "extract.hasRichContent"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-093",
+      "text": "\"XTRA Spare ganz einfach 5 € – Registriere dich, stimme Werbe-E-Mails zu und spare 5 € ab 40 € Bestellwert.\" is a site-wide signup/membership offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-094",
+      "text": "The displayed free shipping and discount offers are site-wide offers and are not specific to the main product. They should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-095",
+      "text": "The content under \"Informations produit\" is informational text and does not provide a dedicated product description section. It should not be extracted as the product description.",
+      "active": true,
+      "attributes": [
+        "extract.description"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-096",
+      "text": "This is an app-related offer and is not specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-097",
+      "text": "This is a financing offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-098",
+      "text": "This is a loyalty program/member pricing offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-099",
+      "text": "This is a competition/sweepstakes offer, not a promotion specific to the main product. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-100",
+      "text": "This is a competition/sweepstakes campaign and not a product promotion. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-101",
+      "text": "This is a competition/sweepstakes campaign and not a product-specific promotion. It should not be extracted as the product's promotionText.",
+      "active": true,
+      "attributes": [
+        "extract.promotionText"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-102",
+      "text": "No play icon or video thumbnail is present in the main image gallery. The orange thumbnail shown is a product image, not an official product video. Therefore, no video should be extracted.",
+      "active": true,
+      "attributes": [
+        "extract.video"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    },
+    {
+      "id": "fb-103",
+      "text": "No official product video is visible on the product page. The \"Produktbeschreibung des Herstellers\" section is manufacturer information and should not be treated as a product video unless an actual playable video is present.",
+      "active": true,
+      "attributes": [
+        "extract.video"
+      ],
+      "popularity": 1,
+      "source": "csv",
+      "createdAt": "2026-10-01T11:35:05.197Z",
+      "updatedAt": "2026-10-01T11:35:05.197Z",
+      "deletedAt": null
+    }
+  ]
+}

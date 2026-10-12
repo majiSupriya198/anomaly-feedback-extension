@@ -18,7 +18,7 @@ const INITIAL_ADMINS = ['supriya.m@commerceiq.ai', 'diwagar.j@commerceiq.ai'];
 function createServer(opts) {
   opts = opts || {};
   const admins = new Set((opts.admins || []).map((s) => s.toLowerCase()));
-  let items = JSON.parse(fs.readFileSync(opts.seedFile || path.join(__dirname, '../data/feedback.json'), 'utf8'));
+  let items = JSON.parse(fs.readFileSync(opts.seedFile || path.join(__dirname, '../config/feedback.json'), 'utf8')).items;
   const now = () => new Date().toISOString();
   const nextId = () => 'fb-' + String(items.reduce((m, i) => Math.max(m, +(/^fb-(\d+)$/.exec(i.id) || [0, 0])[1]), 0) + 1).padStart(3, '0');
 

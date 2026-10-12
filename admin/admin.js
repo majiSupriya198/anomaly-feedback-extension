@@ -101,6 +101,10 @@
         document.body.appendChild(a); a.dispatchEvent(new MouseEvent('click')); a.remove();
       } catch (e) { msg(e.message, true); }
     });
+    store.getRemoteState().then(async (st) => {
+      const v = await store.getConfigVersion();
+      $('cfg').textContent = 'Shared list version ' + v + (st.lastCheck ? ' · last checked ' + new Date(st.lastCheck).toLocaleString() : '') + (st.lastError ? ' · last check failed: ' + st.lastError : '');
+    });
     const r = await service.sync();
     if (!r.ok) msg('Server unreachable; showing cached data. Changes will fail until it is back.', true);
     await load();

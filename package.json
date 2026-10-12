@@ -6,7 +6,9 @@
     "test": "vitest run",
     "build:data": "node scripts/csv-to-json.mjs",
     "dev:server": "node server/dev-server.cjs",
-    "publish:list": "node scripts/publish-list.mjs"
+    "publish:list": "node scripts/publish-list.mjs",
+    "build:site": "node scripts/build-site.mjs site",
+    "check:bump": "node scripts/check-version-bump.mjs"
   },
   "devDependencies": {
     "jsdom": "^26.0.0",

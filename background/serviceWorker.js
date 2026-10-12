@@ -1,7 +1,10 @@
-importScripts('../authz/authz.js', '../storage/feedbackStore.js', '../feedback/api.js', '../feedback/service.js');
+importScripts('../authz/authz.js', '../feedback/configSchema.js', '../storage/feedbackStore.js', '../feedback/api.js', '../feedback/service.js', '../feedback/remoteConfig.js');
 
 // The service worker is the only place that talks to the backend. Pages and content scripts ask it
 // through a narrow message: it will only call /feedback endpoints on the Hub origin.
+// Shared config is published here by GitHub Actions (see .github/workflows/deploy-config.yml).
+// Must match host_permissions in manifest.json (a test enforces this).
+const REMOTE_CONFIG_BASE = 'https://majisupriya198.github.io/anomaly-feedback-extension/';
 const API_ORIGIN = 'https://anomaly-hub.ef.uk.com';
 const DEV_ORIGIN = 'http://localhost:8787'; // optional host permission, for the dev server only
 const API_PREFIX = '/api';
@@ -49,12 +52,18 @@ function profileEmail() {
   });
 }
 
-async function warmUp() { try { await AFX.store.getAll(); await service.sync(); } catch (e) { console.warn('[afx] warm-up failed', e); } }
+const remote = AFX.remoteConfig.createRemoteConfig({ baseUrl: REMOTE_CONFIG_BASE, store: AFX.store, schema: AFX.configSchema });
+
+async function warmUp() {
+  try { await AFX.store.getAll(); await service.sync(); } catch (e) { console.warn('[afx] warm-up failed', e); }
+  remote.check().catch(() => {}); // throttled, never throws
+}
 chrome.runtime.onInstalled.addListener(warmUp);
 chrome.runtime.onStartup.addListener(warmUp);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !msg) return false;
+  if (msg.type === 'afx.checkConfig') { remote.check({ force: msg.force === true }).then(sendResponse); return true; }
   if (msg.type === 'afx.whoami') { profileEmail().then((email) => sendResponse({ email })); return true; }
   if (msg.type === 'afx.api') { callBackend(msg).then(sendResponse); return true; }
   if (msg.type === 'afx.openAdmin') { chrome.tabs.create({ url: chrome.runtime.getURL('admin/admin.html') }); return false; }

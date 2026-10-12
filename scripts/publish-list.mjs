@@ -1,23 +1,20 @@
 // Usage: node scripts/publish-list.mjs <export.json>
-// Turns an admin "Export JSON" file into the list shipped with the extension: validates it, writes
-// data/feedback.json, and bumps data/feedback.meta.json so teammates' caches refresh on update.
+// Turns an admin "Export JSON" file into the shared config: validates it, writes config/feedback.json
+// and bumps the patch version. Commit and push; GitHub Actions then publishes it to everyone.
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
+const schema = createRequire(import.meta.url)('../feedback/configSchema.js');
 
 const input = process.argv[2];
 if (!input) { console.error('Usage: node scripts/publish-list.mjs <export.json>'); process.exit(1); }
-const list = JSON.parse(fs.readFileSync(input, 'utf8'));
-if (!Array.isArray(list)) throw new Error('Expected a JSON array.');
-const ids = new Set(), texts = new Set();
-for (const i of list) {
-  if (!i || typeof i.id !== 'string' || !/^fb-\d+$/.test(i.id)) throw new Error('Bad or missing id: ' + JSON.stringify(i && i.id));
-  if (typeof i.text !== 'string' || !i.text.trim()) throw new Error('Empty text for ' + i.id);
-  if (ids.has(i.id)) throw new Error('Duplicate id ' + i.id);
-  if (!i.deletedAt && texts.has(i.text)) throw new Error('Duplicate text for ' + i.id);
-  ids.add(i.id); if (!i.deletedAt) texts.add(i.text);
-}
-const dataDir = new URL('../data/', import.meta.url);
-fs.writeFileSync(new URL('feedback.json', dataDir), JSON.stringify(list, null, 2) + '\n');
-const metaUrl = new URL('feedback.meta.json', dataDir);
-const prev = fs.existsSync(metaUrl) ? JSON.parse(fs.readFileSync(metaUrl, 'utf8')).version || 1 : 0;
-fs.writeFileSync(metaUrl, JSON.stringify({ version: prev + 1 }) + '\n');
-console.log(`Published ${list.length} items, bundle version ${prev + 1}. Commit data/ and push.`);
+const items = JSON.parse(fs.readFileSync(input, 'utf8'));
+if (!Array.isArray(items)) throw new Error('Expected a JSON array (an admin export).');
+
+const file = new URL('../config/feedback.json', import.meta.url);
+const prev = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { version: '1.0.0' };
+const [maj, min, pat] = schema.parseVersion(prev.version);
+const cfg = { schemaVersion: schema.SCHEMA_VERSION, version: `${maj}.${min}.${pat + 1}`, updatedAt: new Date().toISOString(), items };
+const v = schema.validateConfig(cfg);
+if (!v.ok) { console.error('Invalid list:\n- ' + v.errors.join('\n- ')); process.exit(1); }
+fs.writeFileSync(file, JSON.stringify(cfg, null, 2) + '\n');
+console.log(`Published ${items.length} items as version ${cfg.version}. Commit config/ and push.`);

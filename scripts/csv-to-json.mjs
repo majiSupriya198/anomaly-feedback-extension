@@ -1,4 +1,4 @@
-// Usage: node scripts/csv-to-json.mjs <input.csv> [output.json]
+// Usage: node scripts/csv-to-json.mjs <input.csv> [output.json]   (default output: config/feedback.json)
 // Reads the `feedback` column, removes ONLY exact duplicates, keeps wording verbatim.
 import fs from 'node:fs';
 
@@ -20,7 +20,7 @@ function parseCsv(src) {
   return rows;
 }
 
-const [input, output = new URL('../data/feedback.json', import.meta.url).pathname] = process.argv.slice(2);
+const [input, output = new URL('../config/feedback.json', import.meta.url).pathname] = process.argv.slice(2);
 if (!input) { console.error('Usage: node scripts/csv-to-json.mjs <input.csv> [output.json]'); process.exit(1); }
 const rows = parseCsv(fs.readFileSync(input, 'utf8').replace(/^﻿/, ''));
 const head = rows.shift();
@@ -50,5 +50,5 @@ const list = [...map.values()].sort((a, b) => b.uses - a.uses).map((e, i) => ({
   updatedAt: now,
   deletedAt: null,
 }));
-fs.writeFileSync(output, JSON.stringify(list, null, 2) + '\n');
+fs.writeFileSync(output, JSON.stringify({ schemaVersion: 1, version: '1.0.0', updatedAt: now, items: list }, null, 2) + '\n');
 console.log(`rows=${rows.length} unique=${list.length} -> ${output}`);

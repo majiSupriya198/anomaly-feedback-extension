@@ -1,0 +1,58 @@
+name: Deploy shared config to GitHub Pages
+
+# Publishes ONLY the shared feedback config (config/feedback.json + config/version.json).
+# Installed extensions fetch it from Pages, so a push to main reaches everyone without a reinstall.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'config/**'
+      - 'feedback/configSchema.js'
+      - 'scripts/build-site.mjs'
+      - '.github/workflows/deploy-config.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Config version must increase when the config changes
+        run: node scripts/check-version-bump.mjs HEAD~1
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build-site.mjs site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

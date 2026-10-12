@@ -38,15 +38,15 @@ A reachable backend always wins over the email check. If it says you're a normal
 - For shared, server-enforced edits, add the endpoints in [`docs/backend-api.md`](docs/backend-api.md). The extension switches to backend mode automatically.
 - No API keys, tokens or credentials are in this repo or the extension.
 
-### Sharing admin edits with the team (local mode)
+### Sharing admin edits with the team
 1. Admin page → make your changes → **Export JSON**.
-2. In the repo: `npm run publish:list -- path/to/feedback-export.json` (validates, rewrites `data/feedback.json`, bumps `data/feedback.meta.json`).
-3. Review the diff, commit and push. Teammates `git pull`, then reload the extension. A newer bundle version refreshes their list automatically, unless they have local admin edits, which are never overwritten.
+2. In the repo: `npm run publish:list -- path/to/feedback-export.json`. It validates the list, rewrites `config/feedback.json` and bumps the version.
+3. Commit and push to `main`. GitHub Actions publishes it, and installed extensions pick it up automatically (see below). **No `git pull`, rebuild or re-import is needed on anyone's machine.**
 
 ## How feedback is stored
-- **Source of truth:** the backend when one exists. Otherwise the list bundled in this repo (`data/feedback.json`, versioned by `data/feedback.meta.json`).
-- **Local cache:** `chrome.storage.local` key `afx.feedback`, used for fast, offline search. Refreshed from the backend on load, or from a newer bundle after an update. Local admin edits set `afx.localEdits` and are backed up (`afx.localBackup`) before any overwrite.
-- **First run:** the cache is seeded from [`data/feedback.json`](data/feedback.json), built from the team's CSV (337 rows → 103 unique texts, verbatim).
+- **Source of truth:** the backend when one exists. Otherwise the shared config in this repo, [`config/feedback.json`](config/feedback.json), published to GitHub Pages.
+- **Local cache:** `chrome.storage.local` key `afx.feedback`, used for fast, offline search. Refreshed from the published config (or the backend). Local admin edits set `afx.localEdits` and are never overwritten automatically.
+- **First run / offline:** the cache is seeded from the copy of `config/feedback.json` shipped inside the extension (built from the team's CSV: 337 rows → 103 unique texts, verbatim).
 - **Personal data only:** your usage counts (for ranking) and insert preferences. These never change the shared list.
 
 ```json
@@ -62,8 +62,38 @@ Admins (the two accounts above) see **Manage feedback…** in the panel, which o
 
 ### Add or update feedback
 - **Normal flow:** admin page → *Add feedback* or *Edit*. With a backend, everyone gets the change on their next load. In local mode, follow *Sharing admin edits* above.
-- **Bulk update from a new CSV:** `node scripts/csv-to-json.mjs path/to.csv` rewrites `data/feedback.json` (exact duplicates only, wording unchanged). Then import it server-side as the initial data. The bundle is only the offline fallback.
+- **Bulk update from a new CSV:** `node scripts/csv-to-json.mjs path/to.csv` rewrites `config/feedback.json` (exact duplicates only, wording unchanged, version reset to 1.0.0).
 - Review the current list in [`docs/feedback-review.md`](docs/feedback-review.md).
+
+## How updates reach users (GitHub Pages)
+```
+push to main ─► GitHub Actions (tests + validate + version-bump check) ─► GitHub Pages
+                   https://majisupriya198.github.io/anomaly-feedback-extension/config/{version,feedback}.json
+Extension service worker ─► version.json (tiny) ─► newer? ─► feedback.json ─► validate ─► cache ─► panel
+```
+- **When it checks:** when an Anomaly Hub page loads, at most once every 15 minutes (after an error, retry after 2 minutes), plus on browser start. A check is one tiny request. The full file is downloaded only when the version is newer.
+- **Versioning:** `config/feedback.json` carries `version` (e.g. `1.0.12`), `updatedAt` and `items`. `version.json` repeats the version and adds a SHA-256 of the file. Versions compare numerically. Older versions are ignored.
+- **Last known good:** if Pages is down, times out, or serves anything invalid (bad JSON, wrong hash, empty list, no active items, duplicate IDs, unsupported schema), the extension keeps its current list. Nothing is half-applied.
+- **Timing:** deploy takes about 1–2 minutes and GitHub's CDN caches for up to about 10 minutes. Expect the change in users' extensions within about 15 minutes, not instantly.
+- **Local admin edits** are never overwritten by a remote update.
+- **Only data is downloaded.** The extension never fetches or runs remote code, which Chrome doesn't allow in Manifest V3 anyway.
+
+### What updates remotely, and what doesn't
+| Change | How it reaches users |
+|---|---|
+| Feedback texts: add, edit, enable/disable, delete | Push `config/feedback.json` → automatic |
+| Categories (`attributes`) on feedback | Push → automatic |
+| Any JavaScript, HTML or CSS | Extension update (reload an unpacked install, or a Chrome Web Store release) |
+| `manifest.json`, permissions, Chrome APIs, the Pages URL | Extension update. Chrome may ask users to approve new permissions. |
+| New kinds of shared config (e.g. retailer mappings) | Extension update once, to teach it the new field. Their *values* then update remotely. |
+
+**One-time step:** the first build that contains this update mechanism has to be installed the normal way (`git pull` and reload). After that, list changes are automatic.
+
+### GitHub setup
+- **Settings → Pages → Source:** *GitHub Actions* (already enabled).
+- **Publishes only** `config/feedback.json`, `config/version.json` and a one-line `index.html`. The code, docs, tests and admin emails are not published, and the site is world-readable, so never put secrets or customer data in `config/`.
+- **Protect `main`** (Settings → Branches): whoever can push to `main` changes what every user sees, so require a pull request and a review.
+- The workflow needs no secrets. It uses `GITHUB_TOKEN` with `pages: write` and `id-token: write` only.
 
 ## Install and load locally in Chrome
 ```bash
@@ -78,8 +108,10 @@ git clone <repo-url> && cd anomaly-feedback-extension
 ```bash
 npm install
 npm test                      # 60+ tests: authz, service, storage, server, DOM, integration
-npm run build:data -- path/to/data.csv   # CSV -> data/feedback.json
-npm run publish:list -- export.json      # admin export -> shipped list (bumps version)
+npm run build:data -- path/to/data.csv   # CSV -> config/feedback.json
+npm run publish:list -- export.json      # admin export -> config/feedback.json (bumps version)
+npm run build:site                        # builds the GitHub Pages site into ./site (what CI publishes)
+npm run check:bump                        # CI guard: config changes must raise the version
 npm run dev:server            # reference backend on :8787 (admins: the two initial admins; override with DEV_ADMINS)
 ```
 To try admin features locally: start the dev server, then in the extension's service worker console (`chrome://extensions` → *service worker*) run:
@@ -97,6 +129,9 @@ content/                  Hub integration (domAdapter.js, anomalyHub.js)
 ui/panel.js               read-only suggestion panel (Shadow DOM)
 admin/                    admin page           options/ popup/  user settings, quick search
 background/serviceWorker.js  the only code that calls the backend
+feedback/remoteConfig.js  throttled, validated config updates   feedback/configSchema.js  shared validation + versions
+config/                   the shared feedback list (published to Pages)   scripts/  build-site, publish-list, check-version-bump
+.github/workflows/        deploy-config.yml (tests → validate → Pages)
 server/dev-server.cjs     reference API for local dev and tests      docs/  API contract, feedback review
 ```
 
@@ -104,4 +139,5 @@ server/dev-server.cjs     reference API for local dev and tests      docs/  API 
 - Server-enforced admin access needs the backend (see above). Local mode only gates the UI and your own copy.
 - Admin detection needs Chrome signed in to a Google account (any sign-in state that exposes the email).
 - The extension only runs on `anomaly-hub.ef.uk.com`. If the host changes, update `manifest.json`.
+- The published config URL is fixed in the extension. Moving to a different Pages URL needs an extension update.
 - The live Feedback field is detected by label. If the Hub's markup changes, adjust `content/domAdapter.js`.

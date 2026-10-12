@@ -9,7 +9,8 @@
     "identity.email"
   ],
   "host_permissions": [
-    "https://anomaly-hub.ef.uk.com/*"
+    "https://anomaly-hub.ef.uk.com/*",
+    "https://majisupriya198.github.io/anomaly-feedback-extension/*"
   ],
   "background": {
     "service_worker": "background/serviceWorker.js"
@@ -21,6 +22,7 @@
       ],
       "js": [
         "authz/authz.js",
+        "feedback/configSchema.js",
         "storage/feedbackStore.js",
         "feedback/api.js",
         "feedback/service.js",
@@ -34,8 +36,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "data/feedback.json",
-        "data/feedback.meta.json"
+        "config/feedback.json"
       ],
       "matches": [
         "https://anomaly-hub.ef.uk.com/*"

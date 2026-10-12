@@ -32,7 +32,7 @@ beforeEach(async () => {
   Object.defineProperty(navigator, 'clipboard', { value: { writeText: clipboard }, configurable: true });
   be = fakeBackend('user');
   globalThis.chrome = { storage: { onChanged: { addListener() {} } },
-    runtime: { id: 'test-ext', sendMessage(msg, cb) { if (msg.type === 'afx.whoami') return cb({ email: 'someone@commerceiq.ai' }); be.transport({ method: msg.method, path: msg.path, body: msg.body }).then(cb, () => cb(undefined)); } } };
+    runtime: { id: 'test-ext', sendMessage(msg, cb) { if (msg.type === 'afx.whoami') return cb({ email: 'someone@commerceiq.ai' }); if (msg.type === 'afx.checkConfig') { globalThis.__configChecks = (globalThis.__configChecks || 0) + 1; return cb({ status: 'throttled' }); } be.transport({ method: msg.method, path: msg.path, body: msg.body }).then(cb, () => cb(undefined)); } } };
   window.confirm = vi.fn(() => true);
 });
 
@@ -94,6 +94,12 @@ describe('suggestion UI + integration', () => {
     expect(shadow().querySelector('.panel').hasAttribute('hidden')).toBe(false); // still open
     items()[0].dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true })); await sleep(60);
     expect(document.getElementById('two-fb').value).not.toBe('');
+  });
+
+  it('asks the service worker to check the shared config once per page load', async () => {
+    globalThis.__configChecks = 0;
+    boot(); await sleep(60);
+    expect(globalThis.__configChecks).toBe(1);
   });
 
   it('page refresh / re-injection never duplicates the panel', async () => {
@@ -194,5 +200,7 @@ describe('static safety: nothing in the page-facing code can submit', () => {
     expect(m.permissions).toEqual(['storage', 'identity', 'identity.email']);
     expect(m.optional_host_permissions).toEqual(['http://localhost:8787/*']);
     expect(m.content_scripts[0].matches).toEqual(['https://anomaly-hub.ef.uk.com/*']);
+    expect(m.host_permissions).toEqual(['https://anomaly-hub.ef.uk.com/*', 'https://majisupriya198.github.io/anomaly-feedback-extension/*']);
+    expect(m.permissions).not.toContain('alarms');
   });
 });
