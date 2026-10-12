@@ -85,3 +85,45 @@ describe('site build (what gets published)', () => {
     expect(() => build(bad)).toThrow();
   });
 });
+
+describe('shipped managed feedback (generalized list)', () => {
+  const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/feedback.json'), 'utf8'));
+  const live = cfg.items.filter((i) => i.active !== false && !i.deletedAt);
+  const byId = new Map(cfg.items.map((i) => [i.id, i]));
+  it('has no duplicate live feedback: one canonical entry per generalized text', () => {
+    expect(new Set(live.map((i) => i.text)).size).toBe(live.length);
+  });
+  it('every merged (soft-deleted) entry points at an existing, live canonical entry with the same text', () => {
+    const merged = cfg.items.filter((i) => i.mergedInto);
+    expect(merged.length).toBeGreaterThan(0);
+    for (const m of merged) {
+      const c = byId.get(m.mergedInto);
+      expect(c, `${m.id} -> ${m.mergedInto}`).toBeTruthy();
+      expect(c.active !== false && !c.deletedAt).toBe(true);
+      expect(m.deletedAt).toBeTruthy();
+      expect(m.text).toBe(c.text);
+    }
+  });
+  it('contains the three new rules, as live entries, with the key points preserved', () => {
+    const find = (attr) => live.find((i) => i.source === 'sheet' && i.attributes.includes('extract.' + attr));
+    expect(find('imageUrl').text).toMatch(/\.res resource format/);
+    expect(find('imageUrl').text).toMatch(/\.jpg\/\.svg/);
+    expect(find('bulletPoints').text).toMatch(/collapsed accordion/);
+    expect(find('bulletPoints').text).toMatch(/not visible in the screenshot/);
+    expect(find('bulletPoints').text).toMatch(/no bullet symbol or list markup/);
+    expect(find('gtin').text).toMatch(/script\[type="application\/ld\+json"\]/);
+    expect(find('gtin').text).toMatch(/should not be flagged as an extraction error/);
+  });
+  it('manual-review entries are not live (hidden from users) and keep their original text', () => {
+    for (const id of ['fb-085', 'fb-087']) {
+      expect(byId.get(id).active).toBe(false);
+      expect(byId.get(id).deletedAt).toBeNull();
+      expect(byId.get(id).text).not.toMatch(/Needs manual review/);
+    }
+  });
+  it('no id was ever removed or reused, and none is referenced by code', () => {
+    const ids = cfg.items.map((i) => i.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (let n = 1; n <= 106; n++) expect(ids).toContain('fb-' + String(n).padStart(3, '0'));
+  });
+});

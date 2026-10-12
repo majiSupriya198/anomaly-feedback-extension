@@ -25,6 +25,11 @@ const PORT = 8443;
 const CHROME = process.env.AFX_CHROME || '/Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'afx-browser-'));
 const shipped = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/feedback.json'), 'utf8'));
+const isLive = (i) => i.active !== false && !i.deletedAt;
+const liveCount = shipped.items.filter(isLive).length;
+// What the panel shows for an EXTRACT.PROMOTIONTEXT anomaly: live items of that category plus untagged ones.
+const promoCount = shipped.items.filter((i) => isLive(i) && (!i.attributes.length || i.attributes.includes('extract.promotionText'))).length;
+const livePromoIdx = (cfg) => cfg.items.findIndex((i) => isLive(i) && i.attributes.includes('extract.promotionText'));
 
 // --- local HTTPS server standing in for both the Hub and GitHub Pages ---------------------------------
 const certKey = path.join(tmp, 'key.pem'), certPem = path.join(tmp, 'cert.pem');
@@ -126,10 +131,18 @@ test('1. existing Feedback Helper works in real Chrome: list, search, insert, an
   await openPanel(page);
   // The Hub page is for EXTRACT.PROMOTIONTEXT, so the panel pre-filters to that category (plus untagged items).
   const filtered = await itemTexts(page);
-  assert.ok(filtered.length >= 30 && filtered.length < 100, `expected the category-filtered list, got ${filtered.length}`);
+  assert.equal(filtered.length, promoCount, 'panel shows exactly the live promotionText items');
   await panel(page).locator('.chip:not(.off)').click(); // toggle the category filter off -> the whole shared list
   await page.waitForTimeout(250);
-  assert.ok((await itemTexts(page)).length >= 100, 'whole bundled list is available');
+  assert.equal((await itemTexts(page)).length, liveCount, 'whole live list is available (soft-deleted and inactive items never show)');
+  // The three newly added rules are reachable through the normal search.
+  for (const [q, re] of [['.res resource', /\.res resource format/], ['collapsed accordion', /collapsed accordion/], ['ld+json', /application\/ld\+json/]]) {
+    await panel(page).locator('input[type=search]').fill(q);
+    await page.waitForTimeout(250);
+    assert.ok((await itemTexts(page)).some((t) => re.test(t)), `new rule findable by search "${q}"`);
+  }
+  await panel(page).locator('input[type=search]').fill('SITE-WIDE banner'); // back to the original flow
+  await page.waitForTimeout(250);
   await panel(page).locator('.chip.off').first().click().catch(() => {});
   await panel(page).locator('input[type=search]').fill('SITE-WIDE banner');
   await page.waitForTimeout(250);
@@ -160,7 +173,7 @@ test('3. repeated page loads inside the throttle window make no extra requests',
 test('4. ACCEPTANCE: a published change reaches the already-installed extension with no pull, rebuild or re-import', async () => {
   const cfg = structuredClone(shipped);
   cfg.version = '9.9.1'; cfg.updatedAt = new Date().toISOString();
-  const editIdx = cfg.items.findIndex((i) => i.attributes.includes('extract.promotionText')); // visible for this anomaly's category
+  const editIdx = livePromoIdx(cfg); // a live item visible for this anomaly's category
   cfg.items[editIdx].text = NEW_RULE;
   cfg.items.push({ id: 'fb-901', text: NEW_ITEM, active: true, attributes: ['extract.promotionText'], popularity: 0, source: 'repo', createdAt: cfg.updatedAt, updatedAt: cfg.updatedAt, deletedAt: null });
   v2 = cfg;
@@ -201,7 +214,7 @@ test('6. Pages unavailable (HTTP 503): the last known good list keeps working', 
 
 test('7. invalid JSON and a bad hash are rejected without replacing the cache', async () => {
   pages.mode = 'ok';
-  const bad = structuredClone(v2); bad.version = '9.9.2'; bad.items[bad.items.findIndex((i) => i.attributes.includes('extract.promotionText'))].text = 'MUST NEVER APPEAR';
+  const bad = structuredClone(v2); bad.version = '9.9.2'; bad.items[livePromoIdx(bad)].text = 'MUST NEVER APPEAR';
   pages.dir = buildSite(bad, 'v3');
   pages.mode = 'invalid-json'; await expireThrottle(A.sw);
   let page = await openHub(A.ctx); await page.waitForTimeout(800); await page.close();

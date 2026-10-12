@@ -11,7 +11,8 @@
     "check:bump": "node scripts/check-version-bump.mjs",
     "lint": "eslint .",
     "verify": "npm run lint && npm test && npm run build:site && node scripts/check-version-bump.mjs HEAD",
-    "test:browser": "node --test --test-concurrency=1 tests/browser/run.mjs"
+    "test:browser": "node --test --test-concurrency=1 tests/browser/run.mjs",
+    "import:generalized": "node scripts/import-generalized.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

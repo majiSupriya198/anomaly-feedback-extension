@@ -78,6 +78,14 @@ Extension service worker ─► version.json (tiny) ─► newer? ─► feedbac
 - **Local admin edits** are never overwritten by a remote update.
 - **Only data is downloaded.** The extension never fetches or runs remote code, which Chrome doesn't allow in Manifest V3 anyway.
 
+### Applying a generalized feedback sheet
+`npm run import:generalized -- sheet.tsv [--prune] [--write]` applies a sheet export (columns *Original ID, Attribute, Popularity, Generalized feedback, Status*) to `config/feedback.json` using the managed format. It is a dry run unless `--write` is given.
+- **mapped** rows: the item keeps its stable ID and gets the generalized text. Rows with identical text merge into one canonical item (most popular ID, popularity summed). The others are **soft-deleted** with `mergedInto`, so their IDs still resolve and old wording is dropped.
+- **NEEDS MANUAL REVIEW** rows are never promoted: the item is set inactive (hidden from normal users) until someone reviews it.
+- **new** rows are added with fresh IDs, unless identical text already exists.
+- **`--prune`** soft-deletes anything in the config that is not in the sheet, so the live list is exactly the sheet.
+- Safe to re-run: a second run changes nothing. The version is bumped (minor) only when something changed. Review the diff, then follow the normal publish flow.
+
 ### What updates remotely, and what doesn't
 | Change | How it reaches users |
 |---|---|

@@ -270,3 +270,30 @@ describe('browser / service worker restart', () => {
     expect(r.map((i) => i.id)).toEqual(SEED.map((i) => i.id)); // recovered from the bundled list
   });
 });
+
+describe('upgrading to the generalized list keeps each user\'s local state', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const shipped = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/feedback.json'), 'utf8'));
+  const oldList = () => shipped.items.slice(0, 5).map((i) => ({ ...i, text: 'OLD WORDING ' + i.id, deletedAt: null, active: true }));
+  const bundle = (b) => store._configure({ backend: b, seedLoader: async () => structuredClone(shipped.items), metaLoader: async () => ({ version: shipped.version }) });
+
+  it('replaces the old cached list, but usage counts and settings survive (stored under separate keys)', async () => {
+    const b = memoryBackend();
+    await b.set({ 'afx.feedback': oldList(), 'afx.configVersion': '1.0.2', 'afx.uses': { 'fb-001': 5, 'fb-007': 3 }, 'afx.settings': { insertMode: 'append', confirmReplace: false } });
+    bundle(b);
+    const list = await store.getAll();
+    expect(JSON.stringify(list)).not.toMatch(/OLD WORDING/);
+    expect(list.filter((i) => i.active && !i.deletedAt).length).toBe(shipped.items.filter((i) => i.active !== false && !i.deletedAt).length);
+    expect(await store.getConfigVersion()).toBe(shipped.version);
+    expect(await store.getUses()).toEqual({ 'fb-001': 5, 'fb-007': 3 }); // ids of merged entries still resolve; counts untouched
+    expect(await store.getSettings()).toEqual({ insertMode: 'append', confirmReplace: false });
+  });
+  it('local admin edits are never overwritten by the upgrade', async () => {
+    const b = memoryBackend();
+    const mine = oldList(); mine[0].text = 'MY LOCAL EDIT';
+    await b.set({ 'afx.feedback': mine, 'afx.configVersion': '1.0.2', 'afx.localEdits': true });
+    bundle(b);
+    expect((await store.getAll())[0].text).toBe('MY LOCAL EDIT');
+  });
+});
