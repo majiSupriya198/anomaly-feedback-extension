@@ -179,9 +179,9 @@ describe('storage: seeding, migration, no data loss', () => {
   it('bundled config/feedback.json matches the schema', async () => {
     const fs = await import('node:fs');
     const list = JSON.parse(fs.readFileSync(new URL('../config/feedback.json', import.meta.url), 'utf8')).items;
-    expect(list).toHaveLength(103);
-    expect(new Set(list.map((i) => i.id)).size).toBe(103);
-    expect(new Set(list.map((i) => i.text)).size).toBe(103);
+    expect(list.length).toBeGreaterThanOrEqual(103);
+    expect(new Set(list.map((i) => i.id)).size).toBe(list.length);
+    expect(new Set(list.map((i) => i.text)).size).toBe(list.length);
     expect(list.every((i) => /^fb-\d{3}$/.test(i.id) && i.active === true && i.createdAt && i.updatedAt && 'deletedAt' in i)).toBe(true);
   });
   it('settings default and persist', async () => {

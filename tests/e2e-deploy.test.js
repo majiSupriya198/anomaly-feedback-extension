@@ -18,6 +18,7 @@ const build = () => execFileSync('node', [path.join(ROOT, 'scripts/build-site.mj
 const readCfg = () => JSON.parse(fs.readFileSync(cfgPath(), 'utf8'));
 const writeCfg = (c) => fs.writeFileSync(cfgPath(), JSON.stringify(c, null, 2) + '\n');
 const shipped = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/feedback.json'), 'utf8'));
+const bump = (v) => { const [a, b, c] = schema.parseVersion(v); return `${a}.${b}.${c + 1}`; };
 // A fresh "user" = own browser storage + the shipped extension bundle. The store module is a singleton,
 // so each user must be switched to before acting as them.
 const browser = async (bundled) => {
@@ -57,7 +58,7 @@ describe('end to end: developer edits a rule -> published -> installed extension
 
     // developer changes a shared feedback rule and pushes (here: edit config, bump version, rebuild site)
     const c = readCfg();
-    c.version = '1.0.1'; c.updatedAt = new Date().toISOString();
+    c.version = bump(readCfg().version); c.updatedAt = new Date().toISOString();
     c.items[0].text = 'EDITED SHARED RULE: updated wording for everyone.';
     c.items.push({ id: 'fb-900', text: 'A brand new shared suggestion.', active: true, attributes: ['extract.gtin'], popularity: 0, source: 'repo', createdAt: c.updatedAt, updatedAt: c.updatedAt, deletedAt: null });
     writeCfg(c); build();
@@ -89,7 +90,7 @@ describe('end to end: developer edits a rule -> published -> installed extension
     expect(r.status).toBe('error');
     expect(JSON.stringify(await u.texts())).toBe(before);
     fs.renameSync(siteDir + '.down', siteDir);
-    const c = readCfg(); c.version = '1.0.2'; c.updatedAt = new Date().toISOString(); c.items[2].text = 'after the outage'; writeCfg(c); build();
+    const c = readCfg(); c.version = bump(readCfg().version); c.updatedAt = new Date().toISOString(); c.items[2].text = 'after the outage'; writeCfg(c); build();
     expect((await u.check()).status).toBe('updated');
     expect((await u.texts()).some((x) => x[1] === 'after the outage')).toBe(true);
   });
