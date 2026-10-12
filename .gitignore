@@ -10,3 +10,4 @@ coverage/
 dist/
 # local dev server data / scratch
 server/*.local.json
+site/

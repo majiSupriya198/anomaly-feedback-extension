@@ -22,7 +22,7 @@ function parseCsv(src) {
 
 const [input, output = new URL('../config/feedback.json', import.meta.url).pathname] = process.argv.slice(2);
 if (!input) { console.error('Usage: node scripts/csv-to-json.mjs <input.csv> [output.json]'); process.exit(1); }
-const rows = parseCsv(fs.readFileSync(input, 'utf8').replace(/^﻿/, ''));
+const rows = parseCsv(fs.readFileSync(input, 'utf8').replace(/^\uFEFF/, ''));
 const head = rows.shift();
 const col = (n) => head.indexOf(n);
 const iFb = col('feedback');

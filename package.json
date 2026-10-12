@@ -8,10 +8,17 @@
     "dev:server": "node server/dev-server.cjs",
     "publish:list": "node scripts/publish-list.mjs",
     "build:site": "node scripts/build-site.mjs site",
-    "check:bump": "node scripts/check-version-bump.mjs"
+    "check:bump": "node scripts/check-version-bump.mjs",
+    "lint": "eslint .",
+    "verify": "npm run lint && npm test && npm run build:site && node scripts/check-version-bump.mjs HEAD",
+    "test:browser": "node --test --test-concurrency=1 tests/browser/run.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
     "jsdom": "^26.0.0",
+    "playwright": "1.52",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vitest": "^3.0.0"

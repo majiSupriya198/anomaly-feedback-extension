@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Anomaly Hub (test double)</title></head>
+<body>
+<!-- Minimal stand-in for the Hub's review dialog: a MUI-style dialog with a Feedback textarea and Submit. -->
+<div class="MuiDialog-paper" role="dialog">
+  <h2>Attribute: EXTRACT.PROMOTIONTEXT · Retailer : Amazon-US</h2>
+  <button id="fp" type="button">False Positive</button>
+  <div class="MuiFormControl-root"><label for="fb">Feedback</label><textarea id="fb" rows="3"></textarea></div>
+  <button id="submit" type="button">Submit</button>
+</div>
+<script>
+  // Counts real user actions so the test can prove nothing is clicked or submitted by the extension.
+  window.__submits = 0; window.__fpClicks = 0; window.__inputs = 0;
+  document.getElementById('submit').addEventListener('click', () => window.__submits++);
+  document.getElementById('fp').addEventListener('click', () => window.__fpClicks++);
+  document.getElementById('fb').addEventListener('input', () => window.__inputs++);
+</script>
+</body></html>
